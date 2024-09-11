@@ -1,0 +1,38 @@
+{
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../build",
+    "devUrl": "http://localhost:1420"
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+  "productName": "horse-stable",
+  "mainBinaryName": "horse-stable",
+  "version": "0.1.0",
+  "identifier": "com.horse-stable.app",
+  "plugins": {},
+  "app": {
+    "security": {
+      "csp": null
+    },
+    "windows": [
+      {
+        "title": "horse-stable",
+        "width": 800,
+        "height": 600,
+        "label": "main",
+        "url": "index.html"
+      }
+    ]
+  }
+}
