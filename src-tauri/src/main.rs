@@ -1,6 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use db::{add_horse_query, init_db};
+use db::{add_horse_query, get_all_horses_query, init_db};
 use horse_stable::{Horse, Stable};
 use std::sync::atomic::AtomicUsize;
 mod db;
@@ -20,17 +20,25 @@ fn greet(name: &str) -> String {
 fn get_horse(name: &str) -> Horse {
     Horse::new(name.to_string(), &MY_STABLE)
 }
+#[tauri::command]
+async fn get_all_horses() -> Result<Vec<Horse>, String> {
+    let conn = init_db().await.unwrap();
+
+    let horses = get_all_horses_query(&conn).await;
+
+    Ok(horses)
+}
 
 #[tauri::command]
 async fn add_horse(horse: Horse) -> Result<Horse, String> {
-    println!("adding horse {:?}", horse);
     let conn = init_db().await.unwrap();
 
-    // let horse: Horse = serde_json::from_str(horse).expect("missing");
-
+    let mut clone = horse.clone();
     let added = add_horse_query(horse, &conn).await;
 
-    Ok(added)
+    clone.id = added;
+
+    Ok(clone)
 }
 
 fn main() {
@@ -39,7 +47,12 @@ fn main() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
-        .invoke_handler(tauri::generate_handler![greet, get_horse, add_horse])
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            get_horse,
+            add_horse,
+            get_all_horses
+        ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

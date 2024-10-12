@@ -13,7 +13,7 @@ impl Stable {
     }
 }
 
-#[derive(Debug, Serialize,Deserialize)]
+#[derive(Debug, Serialize,Deserialize,Clone)]
 pub enum Gender {
     Male,
     Female,
@@ -38,7 +38,7 @@ impl From<String> for Gender {
 }
 
 
-#[derive(Debug, Serialize,Deserialize)]
+#[derive(Debug, Serialize,Deserialize,Clone)]
 pub struct Horse {
     pub id: u32,
     pub name: String,

@@ -19,15 +19,25 @@
 
   async function add_horse() {
     try {
-      let res = await invoke<Horse>("add_horse", { horse:{...default_horse, name} });
-
-      if (res) {
-        horses = [...horses, res];
-      }
+      await invoke<Horse>("add_horse", { horse: { ...default_horse, name } }); 
+      void get_horses();
     } catch (e) {
       alert(e);
     }
   }
+
+  async function get_horses() {
+    try {
+      horses = await invoke<Horse[]>("get_all_horses");
+    } catch (e) {
+      alert(e);
+    }
+  }
+
+  $effect(() => {
+    void get_horses();
+  });
+
 </script>
 
 <div class="py-2 w-fit mx-auto my-4 grid rounded gap-4 px-4">
