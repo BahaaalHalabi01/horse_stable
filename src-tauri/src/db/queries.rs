@@ -81,7 +81,7 @@ pub async fn update_horse_query(horse: Horse, conn: &Connection) -> Horse {
             r#"
     UPDATE OR IGNORE Horse  
     SET name = ?1, breed = ?2, color = ?3, nationality = ?4, age = ?5, gender = ?6, weight = ?7, height = ?8, length = ?9
-    WHERE id = ?1
+    WHERE id = ?10
     RETURNING *
     "#,).await.unwrap();
 
@@ -95,7 +95,8 @@ pub async fn update_horse_query(horse: Horse, conn: &Connection) -> Horse {
             horse.gender.to_string(),
             horse.weight,
             horse.height,
-            horse.length
+            horse.length,
+            horse.id
         ])
         .await
     {

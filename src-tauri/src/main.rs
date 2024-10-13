@@ -43,6 +43,7 @@ async fn add_horse(horse: Horse) -> Result<Horse, String> {
 
 #[tauri::command]
 async fn update_horse(horse: Horse) -> Result<Horse, String> {
+    println!("{:?}", horse);
     let conn = init_db().await.unwrap();
 
     Ok(update_horse_query(horse, &conn).await)
