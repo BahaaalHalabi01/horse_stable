@@ -1,8 +1,32 @@
 use horse_stable::{Gender, Horse};
 use libsql::{params, Connection};
+
+pub async fn get_horse_by_id_query(id: u32, conn: &Connection) -> Horse {
+
+    let mut stmt = conn
+        .query("SELECT * FROM Horse WHERE id = ?1", params![id])
+        .await
+        .unwrap();
+
+    match stmt.next().await.unwrap() {
+        Some(row) => Horse {
+            id: row.get(0).unwrap(),
+            name: row.get(1).unwrap(),
+            breed: row.get(2).unwrap(),
+            color: row.get(3).unwrap(),
+            nationality: row.get(4).unwrap(),
+            age: row.get(5).unwrap(),
+            gender: Gender::from(row.get::<String>(6).unwrap()),
+            weight: row.get(7).unwrap(),
+            height: row.get(8).unwrap(),
+            length: row.get(9).unwrap(),
+        },
+        None => panic!("No horse found"),
+    }
+}
+
 // add diesel orm
 pub async fn add_horse_query(horse: Horse, conn: &Connection) -> u32 {
-    create_horse_table(&conn).await;
 
     println!("adding horse {:?}", horse);
 
@@ -34,7 +58,6 @@ pub async fn add_horse_query(horse: Horse, conn: &Connection) -> u32 {
 }
 
 pub async fn get_all_horses_query(conn: &Connection) -> Vec<Horse> {
-    create_horse_table(&conn).await;
 
     let mut stmt = conn.query("SELECT * FROM Horse", params![]).await.unwrap();
 
@@ -59,7 +82,6 @@ pub async fn get_all_horses_query(conn: &Connection) -> Vec<Horse> {
 }
 
 pub async fn delete_horse_query(id: u32, conn: &Connection) {
-    create_horse_table(&conn).await;
 
     if let Ok(res) = conn
         .execute("DELETE FROM Horse  WHERE id = ?1", params![id])
@@ -74,7 +96,6 @@ pub async fn delete_horse_query(id: u32, conn: &Connection) {
 }
 
 pub async fn update_horse_query(horse: Horse, conn: &Connection) -> Horse {
-    create_horse_table(&conn).await;
 
     let mut stmt =conn
         .prepare(
@@ -121,23 +142,3 @@ pub async fn update_horse_query(horse: Horse, conn: &Connection) -> Horse {
     res
 }
 
-pub async fn create_horse_table(conn: &Connection) {
-    conn.execute(
-        r#"
-    CREATE TABLE IF NOT EXISTS Horse (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    breed TEXT NOT NULL,
-    color TEXT NOT NULL,
-    nationality TEXT NOT NULL,
-    age INTEGER NOT NULL,
-    gender TEXT NOT NULL,
-    weight INTEGER NOT NULL,
-    height INTEGER NOT NULL,
-    length INTEGER NOT NULL
-)"#,
-        (),
-    )
-    .await
-    .unwrap();
-}

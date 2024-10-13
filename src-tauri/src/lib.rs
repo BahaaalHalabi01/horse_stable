@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::{
-    fmt, sync::atomic::{AtomicUsize, Ordering}
+    fmt,
+    sync::atomic::{AtomicUsize, Ordering},
+    time::SystemTime,
 };
 
 pub struct Stable {
@@ -13,7 +15,7 @@ impl Stable {
     }
 }
 
-#[derive(Debug, Serialize,Deserialize,Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub enum Gender {
     Male,
     Female,
@@ -37,8 +39,7 @@ impl From<String> for Gender {
     }
 }
 
-
-#[derive(Debug, Serialize,Deserialize,Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Horse {
     pub id: u32,
     pub name: String,
@@ -65,6 +66,38 @@ impl Horse {
             age: 10,
             height: 145,
             length: 250,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct User {
+    pub id: String,
+    pub username: String,
+    pub email: String,
+    pub password: String,
+    pub created_at: u64,
+    pub updated_at: u64,
+}
+
+impl User {
+    pub fn new(
+        id: String,
+        username: String,
+        email: String,
+        password: String,
+    ) -> Self {
+        let now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_secs();
+        User {
+            id,
+            username,
+            email,
+            password,
+            created_at: now,
+            updated_at: now,
         }
     }
 }

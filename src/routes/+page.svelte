@@ -1,5 +1,13 @@
 <script lang="ts">
-  import Horses from "$lib/Horses.svelte";
+  import { goto } from "$app/navigation";
+  import { getUser } from "./auth.svelte";
+
+  let {current: user} = getUser();
+
+
+  if (!user) {
+    goto("/login");
+  }
 </script>
 
 <div class="container mx-auto py-16">
@@ -7,9 +15,4 @@
   <h2 class="text-3xl text-center pb-10 text-secondary italic">
     Built by Tauri!(Rust BTW)
   </h2>
-
-  <Horses />
 </div>
-
-<style>
-</style>

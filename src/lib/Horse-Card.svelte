@@ -22,16 +22,16 @@
       }
     };
 
-  let handle_change: EventHandler<Event, HTMLInputElement> = function (e) {
-    let target = e.currentTarget.name as keyof Horse;
-    let value = e.currentTarget.value as any;
-
-    if (target === "gender") {
-      value = value === "Male" ? "Male" : "Female";
-    }
-
-    horse[target] = value;
-  };
+  // let handle_change: EventHandler<Event, HTMLInputElement> = function (e) {
+  //   let target = e.currentTarget.name as keyof Horse;
+  //   let value = e.currentTarget.value as any;
+  //
+  //   if (target === "gender") {
+  //     value = value === "Male" ? "Male" : "Female";
+  //   }
+  //
+  //   horse[target] = value;
+  // };
 </script>
 
 <div>
@@ -57,59 +57,38 @@
     </button>
 
     <input value={horse.id.toString()} disabled={true} />
+    <input bind:value={horse.name} disabled={!editMode} name="name" />
+    <input bind:value={horse.breed} disabled={!editMode} name="breed" />
+    <input bind:value={horse.color} disabled={!editMode} name="color" />
     <input
-      value={horse.name}
-      disabled={!editMode}
-      onchange={handle_change}
-      name="name"
-    />
-    <input
-      value={horse.breed}
-      disabled={!editMode}
-      name="breed"
-      onchange={handle_change}
-    />
-    <input
-      value={horse.color}
-      disabled={!editMode}
-      name="color"
-      onchange={handle_change}
-    />
-    <input
-      value={horse.nationality}
+      bind:value={horse.nationality}
       disabled={!editMode}
       name="nationality"
-      onchange={handle_change}
     />
     <input
-      value={horse.age}
+      bind:value={horse.age}
       disabled={!editMode}
+      type="number"
       name="age"
-      onchange={handle_change}
     />
+    <input bind:value={horse.gender} disabled={!editMode} name="gender" />
     <input
-      value={horse.gender}
-      disabled={!editMode}
-      name="gender"
-      onchange={handle_change}
-    />
-    <input
-      value={horse.weight}
+      bind:value={horse.weight}
+      type="number"
       disabled={!editMode}
       name="weight"
-      onchange={handle_change}
     />
     <input
-      value={horse.height}
+      bind:value={horse.height}
       disabled={!editMode}
       name="height"
-      onchange={handle_change}
+      type="number"
     />
     <input
-      value={horse.length}
+      bind:value={horse.length}
       disabled={!editMode}
+      type="number"
       name="length"
-      onchange={handle_change}
     />
   </div>
 </div>

@@ -1,7 +1,9 @@
 use libsql::{Builder, Connection, Error};
 mod queries;
+mod tables;
 
 pub use queries::*;
+pub use tables::*;
 
 pub async fn init_db() -> Result<Connection, Error> {
 

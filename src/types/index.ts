@@ -10,3 +10,14 @@ export interface Horse {
   height: Number;
   length: Number;
 }
+
+export interface User {
+  id: String;
+  email: String;
+  password: String;
+  username: String;
+  created_at: Number;
+  updated_at: Number;
+}
+
+

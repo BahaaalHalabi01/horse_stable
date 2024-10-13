@@ -1450,6 +1450,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42703706b716c37f96a77aea830392ad231f44c9e9a67872fa5548707e11b11c"
 
 [[package]]
+name = "fstr"
+version = "0.2.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59fd8999da11407ccf70cbe696eb7f819b85429d83ee3c6eb2f514b1751d246b"
+
+[[package]]
 name = "futf"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1984,6 +1990,7 @@ dependencies = [
  "tauri-plugin-fs",
  "tauri-plugin-shell",
  "tokio",
+ "uuid7",
 ]
 
 [[package]]
@@ -5479,6 +5486,17 @@ checksum = "81dfa00651efa65069b0b6b651f4aaa31ba9e3c3ce0137aaad053604ee7e0314"
 dependencies = [
  "getrandom 0.2.15",
  "serde",
+]
+
+[[package]]
+name = "uuid7"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1191ed4cd2c6a2e1d16a617f0e70649eafd68178633042d31c631eb6b47dc316"
+dependencies = [
+ "fstr",
+ "rand 0.8.5",
+ "rand_chacha 0.3.1",
 ]
 
 [[package]]
