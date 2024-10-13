@@ -1,5 +1,5 @@
 use horse_stable::{Gender, Horse};
-use libsql::{de, params, Connection};
+use libsql::{params, Connection};
 // add diesel orm
 pub async fn add_horse_query(horse: Horse, conn: &Connection) -> u32 {
     create_horse_table(&conn).await;
@@ -36,7 +36,7 @@ pub async fn add_horse_query(horse: Horse, conn: &Connection) -> u32 {
 pub async fn get_all_horses_query(conn: &Connection) -> Vec<Horse> {
     create_horse_table(&conn).await;
 
-    let mut stmt = conn.query("SELECT * FROM Horse",params![]).await.unwrap();
+    let mut stmt = conn.query("SELECT * FROM Horse", params![]).await.unwrap();
 
     let mut horses: Vec<Horse> = vec![];
 
@@ -56,6 +56,21 @@ pub async fn get_all_horses_query(conn: &Connection) -> Vec<Horse> {
     }
 
     horses
+}
+
+pub async fn delete_horse_query(id: u32, conn: &Connection) {
+    create_horse_table(&conn).await;
+
+    if let Ok(res) = conn
+        .execute("DELETE FROM Horse  WHERE id = ?1", params![id])
+        .await
+    {
+        println!("deleted  {} horse(s) with id {}", res, id);
+    } else {
+        panic!("Could not delete horse");
+    }
+
+    ()
 }
 
 pub async fn create_horse_table(conn: &Connection) {

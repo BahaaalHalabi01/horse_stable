@@ -1,5 +1,5 @@
 <script lang="ts">
-  import Greet from "../lib/Greet.svelte";
+  import Horses from "$lib/Horses.svelte";
 </script>
 
 <div class="container mx-auto py-16">
@@ -8,7 +8,7 @@
     Built by Tauri!(Rust BTW)
   </h2>
 
-  <Greet />
+  <Horses />
 </div>
 
 <style>

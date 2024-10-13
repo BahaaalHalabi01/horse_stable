@@ -1,6 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import type { Horse } from "../types";
+    import HorseCard from "./Horse-Card.svelte";
 
   let name = $state("");
   let default_horse: Horse = {
@@ -55,16 +56,6 @@
 </div>
 <div class="grid grid-cols-4 gap-5">
   {#each horses as horse}
-    <div class="grid gap-2">
-      {#each Object.entries(horse ?? {}) as [key, v]}
-        <p
-          class="flex gap-2 border-2 p-2 rounded bg-primary border-black items-center max-w-full overflow-hidden"
-        >
-          <span class=" font-semibold">{key}:</span><span
-            class="font-bold text-lg px-1 text-white truncate">{v}</span
-          >
-        </p>
-      {/each}
-    </div>
+    <HorseCard {horse} />
   {/each}
 </div>

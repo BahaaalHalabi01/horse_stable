@@ -1,6 +1,6 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use db::{add_horse_query, get_all_horses_query, init_db};
+use db::{add_horse_query, get_all_horses_query, init_db, delete_horse_query};
 use horse_stable::{Horse, Stable};
 use std::sync::atomic::AtomicUsize;
 mod db;
@@ -41,6 +41,15 @@ async fn add_horse(horse: Horse) -> Result<Horse, String> {
     Ok(clone)
 }
 
+#[tauri::command]
+async fn delete_horse(id: u32) -> Result<(), String> {
+    let conn = init_db().await.unwrap();
+
+    delete_horse_query(id, &conn).await;
+
+    Ok(())
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -51,7 +60,8 @@ fn main() {
             greet,
             get_horse,
             add_horse,
-            get_all_horses
+            get_all_horses,
+            delete_horse
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
