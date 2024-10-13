@@ -1,7 +1,7 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
   import type { Horse } from "../types";
-    import HorseCard from "./Horse-Card.svelte";
+  import HorseCard from "./Horse-Card.svelte";
 
   let name = $state("");
   let default_horse: Horse = {
@@ -20,7 +20,7 @@
 
   async function add_horse() {
     try {
-      await invoke<Horse>("add_horse", { horse: { ...default_horse, name } }); 
+      await invoke<Horse>("add_horse", { horse: { ...default_horse, name } });
       void get_horses();
     } catch (e) {
       alert(e);
@@ -35,10 +35,20 @@
     }
   }
 
+  async function delete_horse(id: number) {
+    try {
+      let res = await invoke<boolean>("delete_horse", { id });
+      if (res) {
+        horses = horses.filter((horse) => horse.id !== id);
+      }
+    } catch (e) {
+      alert(e);
+    }
+  }
+
   $effect(() => {
     void get_horses();
   });
-
 </script>
 
 <div class="py-2 w-fit mx-auto my-4 grid rounded gap-4 px-4">
@@ -56,6 +66,6 @@
 </div>
 <div class="grid grid-cols-4 gap-5">
   {#each horses as horse}
-    <HorseCard {horse} />
+    <HorseCard {horse} deleteHorse={delete_horse} />
   {/each}
 </div>

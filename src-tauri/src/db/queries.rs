@@ -73,8 +73,55 @@ pub async fn delete_horse_query(id: u32, conn: &Connection) {
     ()
 }
 
+pub async fn update_horse_query(horse: Horse, conn: &Connection) -> Horse {
+    create_horse_table(&conn).await;
+
+    let mut stmt =conn
+        .prepare(
+            r#"
+    UPDATE OR IGNORE Horse  
+    SET name = ?1, breed = ?2, color = ?3, nationality = ?4, age = ?5, gender = ?6, weight = ?7, height = ?8, length = ?9
+    WHERE id = ?1
+    RETURNING *
+    "#,).await.unwrap();
+
+    let res = match stmt
+        .query(params![
+            horse.name,
+            horse.breed,
+            horse.color,
+            horse.nationality,
+            horse.age as u64,
+            horse.gender.to_string(),
+            horse.weight,
+            horse.height,
+            horse.length
+        ])
+        .await
+    {
+        Ok(mut response) => match response.next().await.unwrap() {
+            Some(row) => Horse {
+                id: row.get(0).unwrap(),
+                name: row.get(1).unwrap(),
+                breed: row.get(2).unwrap(),
+                color: row.get(3).unwrap(),
+                nationality: row.get(4).unwrap(),
+                age: row.get(5).unwrap(),
+                gender: Gender::from(row.get::<String>(6).unwrap()),
+                weight: row.get(7).unwrap(),
+                height: row.get(8).unwrap(),
+                length: row.get(9).unwrap(),
+            },
+            None => panic!("No horse found"),
+        },
+        Err(_) => panic!("Could not update horse"),
+    };
+
+    res
+}
+
 pub async fn create_horse_table(conn: &Connection) {
-    conn.execute_batch(
+    conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Horse (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -88,6 +135,7 @@ pub async fn create_horse_table(conn: &Connection) {
     height INTEGER NOT NULL,
     length INTEGER NOT NULL
 )"#,
+        (),
     )
     .await
     .unwrap();
