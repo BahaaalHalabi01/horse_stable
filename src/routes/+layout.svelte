@@ -1,24 +1,16 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
-    import { page } from "$app/stores";
     import { getUser } from "./auth.svelte";
     import "./app.css";
 
   let {children} = $props()
 
-  let { current, setCurrent } = getUser();
+  let user = getUser();
 
   function handleLogout() {
-    setCurrent(undefined);
+    user.setCurrent(undefined);
     goto("/login");
   }
-
-    $effect(() => {
-      if (!current && $page.url.pathname !== "/login") {
-        goto("/login");
-      } 
-    });
-      
 
 </script>
 
@@ -27,16 +19,18 @@
 </main>
   <footer class="flex bg-primary w-full p-2 mt-auto">
   <a href="/contact-us" > Contact Us </a>
+  <a href="/register" > Register </a>
+  <a href="/" > Home </a>
   <div class="flex gap-x-2 ml-auto">
+
   <button class="" onclick={() => window.location.reload()}>Refresh</button>
-  {#if current?.id }
+  {#if user.current?.id }
     <button class="" onclick={handleLogout}>Logout</button> 
-  {/if}
-  {#if current?.id}
+    <a href="/horses" > Horses </a>
     <div class="">
       <p>
-        {current.email}
-        {current.created_at}
+        {user.current.email}
+        {user.current.created_at}
         </p>
     </div>
   {/if}

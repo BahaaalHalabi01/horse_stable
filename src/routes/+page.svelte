@@ -1,13 +1,20 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { invoke } from "@tauri-apps/api/core";
   import { getUser } from "./auth.svelte";
 
-  let {current: user} = getUser();
+  let { current: user } = getUser();
+  let path = $state("");
 
-
-  if (!user) {
-    goto("/login");
+  function handleOpen() {
+    void invoke("open_folder", { path });
   }
+
+  $effect(() => {
+    if (!user) {
+      goto("/login");
+    }
+  });
 </script>
 
 <div class="container mx-auto py-16">
@@ -15,4 +22,14 @@
   <h2 class="text-3xl text-center pb-10 text-secondary italic">
     Built by Tauri!(Rust BTW)
   </h2>
+
+  <input
+    type="text"
+    placeholder="Open folder"
+    class="w-full p-2 text-primary border-2 border-primary rounded-md"
+    bind:value={path}
+  />
+  <button class="w-full p-2 text-primary border-2 border-primary rounded-md" onclick={handleOpen}
+    >Open</button
+  >
 </div>

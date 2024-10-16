@@ -1981,6 +1981,7 @@ dependencies = [
  "anyhow",
  "fs_extra",
  "libsql",
+ "open",
  "serde",
  "serde_json",
  "tauri",

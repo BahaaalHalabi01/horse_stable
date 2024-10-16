@@ -1,9 +1,18 @@
 use serde::{Deserialize, Serialize};
+use tauri::State;
 use std::{
     fmt,
-    sync::atomic::{AtomicUsize, Ordering},
+    sync::{atomic::{AtomicUsize, Ordering}, Mutex},
     time::SystemTime,
 };
+
+
+#[derive(Default)]
+pub struct AppStateInner {
+    pub user_id: String,
+}
+
+pub type AppState<'a> = State<'a, Mutex<AppStateInner>>;
 
 pub struct Stable {
     pub count: AtomicUsize,
