@@ -4,7 +4,7 @@ pub async fn create_horse_table(conn: &Connection) {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Horse (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    id TEXT PRIMARY KEY ,
     name TEXT NOT NULL,
     breed TEXT NOT NULL,
     color TEXT NOT NULL,

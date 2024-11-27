@@ -12,6 +12,8 @@
     goto("/login");
   }
 
+    console.log(user.current);
+
 </script>
 
 <main  class="grow">

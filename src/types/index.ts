@@ -1,5 +1,5 @@
 export interface Horse {
-  id: Number;
+  id: String;
   name: String;
   breed: String;
   color: String;

@@ -2,10 +2,11 @@
   import { invoke } from "@tauri-apps/api/core";
   import type { Horse } from "../types";
   import HorseCard from "./Horse-Card.svelte";
+    import { Commands } from "$src/api/ipc";
 
   let name = $state("");
   let default_horse: Horse = {
-    id: 0,
+    id: "",
     name: "Jimmy",
     breed: "English",
     color: "Brown",
@@ -20,7 +21,7 @@
 
   async function add_horse() {
     try {
-      await invoke<Horse>("add_horse", { horse: { ...default_horse, name } });
+      await invoke<Horse>(Commands.add_horse, { horse: { ...default_horse, name } });
       void get_horses();
     } catch (e) {
       alert(e);
@@ -29,7 +30,7 @@
 
   async function get_horses() {
     try {
-      horses = await invoke<Horse[]>("get_all_horses");
+      horses = await invoke<Horse[]>(Commands.list_all_horses);
     } catch (e) {
       alert(e);
     }
@@ -37,7 +38,7 @@
 
   async function delete_horse(id: number) {
     try {
-      let res = await invoke<boolean>("delete_horse", { id });
+      let res = await invoke<boolean>(Commands.remove_horse, { id });
       if (res) {
         horses = horses.filter((horse) => horse.id !== id);
       }

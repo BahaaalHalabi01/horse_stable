@@ -39,9 +39,9 @@ impl Stable {
         name: String,
         address: String,
         monthly_fee: u32,
-        horse_count: u64,
         created_at: u64,
         updated_at: u64,
+        horse_count: u64,
     ) -> Self {
         let horse_count = AtomicU64::new(horse_count);
         Stable {
@@ -118,7 +118,7 @@ impl From<String> for Gender {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Horse {
-     id: u32,
+     id: String,
      name: String,
      breed: String,
      color: String,
@@ -131,29 +131,29 @@ pub struct Horse {
 }
 
 impl Horse {
-    pub fn new(name: String, stable: &Stable) -> Self {
-        Horse {
-            id: stable.new_horse(),
-            name,
-            breed: String::from("Arabic"),
-            color: String::from("red"),
-            nationality: String::from("lebanese"),
-            gender: Gender::Male,
-            weight: 244,
-            age: 10,
-            height: 145,
-            length: 250,
-        }
-    }
+    // pub fn new(name: String, stable: &Stable) -> Self {
+    //     Horse {
+    //         id: stable.new_horse(),
+    //         name,
+    //         breed: String::from("Arabic"),
+    //         color: String::from("red"),
+    //         nationality: String::from("lebanese"),
+    //         gender: Gender::Male,
+    //         weight: 244,
+    //         age: 10,
+    //         height: 145,
+    //         length: 250,
+    //     }
+    // }
     pub fn from_db(
-        id: u32,
+        id: String,
         name: String,
         breed: String,
         color: String,
         nationality: String,
+        age: u32,
         gender: String,
         weight: u32,
-        age: u32,
         height: u32,
         length: u32,
     ) -> Self {
@@ -171,26 +171,26 @@ impl Horse {
         }
     }
 
-    pub fn id(&self) -> u32 {
-        self.id
+    pub fn id(&self) -> &str {
+        &self.id
     }
-    pub fn name(&self) -> String {
-        self.name.clone()
+    pub fn name(&self) -> &str {
+        &self.name
     }
-    pub fn breed(&self) -> String {
-        self.breed.clone()
+    pub fn breed(&self) -> &str {
+        &self.breed 
     }
-    pub fn color(&self) -> String {
-        self.color.clone()
+    pub fn color(&self) -> &str {
+        &self.color
     }
-    pub fn nationality(&self) -> String {
-        self.nationality.clone()
+    pub fn nationality(&self) -> &str {
+        &self.nationality
     }
     pub fn age(&self) -> u32 {
         self.age
     }
-    pub fn gender(&self) -> Gender {
-        self.gender.clone()
+    pub fn gender(&self) -> &Gender {
+        &self.gender
     }
     pub fn weight(&self) -> u32 {
         self.weight
@@ -232,8 +232,8 @@ impl User {
     pub fn from_db(
         id: String,
         username: String,
-        email: String,
         password: String,
+        email: String,
         created_at: u64,
         updated_at: u64,
     ) -> Self {
