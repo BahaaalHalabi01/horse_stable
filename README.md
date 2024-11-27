@@ -33,3 +33,4 @@ the above should have a timer, and autmatically when the timer is up, the horse 
 
 
 
+Create the dbs in a destination folder able to be specified by the installer

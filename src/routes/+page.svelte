@@ -7,7 +7,6 @@
   let path = $state("");
 
   function handleOpen() {
-    void invoke("open_folder", { path });
   }
 
   $effect(() => {

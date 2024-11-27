@@ -21,6 +21,24 @@ pub async fn create_horse_table(conn: &Connection) {
     .unwrap();
 }
 
+pub async fn create_stable_table(conn: &Connection) {
+    conn.execute(
+        r#"
+    CREATE TABLE IF NOT EXISTS Stable (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    address TEXT NOT NULL,
+    monthly_fee INTEGER NOT NULL,
+    created_at INTEGER NOT NULL,
+    updated_at INTEGER NOT NULL,
+    horse_count INTEGER NOT NULL
+)"#,
+        (),
+    )
+    .await
+    .unwrap();
+}
+
 pub async fn create_user_table(conn: &Connection) {
     conn.execute(
         r#"

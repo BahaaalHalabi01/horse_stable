@@ -1,11 +1,9 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use db::{
-    add_horse_query, create_user_table, delete_horse_query, get_all_horses_query, get_db, get_horse_by_id_query, init_main_db, update_horse_query
-};
-use horse_stable::{ Horse, User};
-use services::{create_user, get_user_by_login, has_user};
+use db::{create_user_table, get_horse_db, init_main_db};
+use horse_stable::{Horse, User};
+use services::{create_horse, create_user, delete_horse, get_all_horses, get_horse_by_id, get_user_by_login, has_user, update_horse};
 use tauri::{async_runtime, Manager, State};
 use tokio::sync::Mutex;
 mod db;
@@ -18,10 +16,6 @@ pub struct AppStateInner {
 
 pub type AppState<'a> = State<'a, Mutex<AppStateInner>>;
 
-// static MY_STABLE: Stable = Stable {
-//     count: AtomicUsize::new(0),
-// };
-
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -30,48 +24,43 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command]
-async fn get_horse_by_id(state: AppState<'_>, id: u32) -> Result<Horse, String> {
-    let conn = get_db(state).await.unwrap();
+async fn get_horse(state: AppState<'_>, id: u32) -> Result<Option<Horse>, String> {
+    let conn = get_horse_db(state).await.unwrap();
 
-    Ok(get_horse_by_id_query(id, &conn).await)
+    Ok(get_horse_by_id(id, &conn).await.unwrap())
 }
 
 #[tauri::command]
-async fn get_all_horses(state: AppState<'_>) -> Result<Vec<Horse>, String> {
-    let conn = get_db(state).await.unwrap();
+async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>, String> {
+    let conn = get_horse_db(state).await.unwrap();
 
-    let horses = get_all_horses_query(&conn).await;
+    let horses = get_all_horses(&conn).await;
 
     Ok(horses)
 }
 
 #[tauri::command]
-async fn add_horse(state: AppState<'_>, horse: Horse) -> Result<Horse, String> {
-    let conn = get_db(state).await.unwrap();
+async fn add_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>, String> {
+    let conn = get_horse_db(state).await.unwrap();
 
-    let mut clone = horse.clone();
-    let added = add_horse_query(horse, &conn).await;
+    Ok(create_horse(horse, &conn).await.unwrap())
 
-    clone.id = added;
-
-    Ok(clone)
 }
 
 #[tauri::command]
-async fn update_horse(state: AppState<'_>,horse: Horse) -> Result<Horse, String> {
+async fn edit_horse(state: AppState<'_>, horse: Horse) -> Result<Horse, String> {
     println!("{:?}", horse);
-    let conn = get_db(state).await.unwrap();
+    let conn = get_horse_db(state).await.unwrap();
 
-    Ok(update_horse_query(horse, &conn).await)
+    Ok(update_horse(horse, &conn).await)
 }
 
 #[tauri::command]
-async fn delete_horse(state: AppState<'_>,id: u32) -> Result<bool, String> {
-    let conn = get_db(state).await.unwrap();
+async fn remove_horse(state: AppState<'_>, id: u32) -> Result<bool, String> {
+    let conn = get_horse_db(state).await.unwrap();
 
-    delete_horse_query(id, &conn).await;
+    Ok(delete_horse(id, &conn).await.is_ok())
 
-   Ok(true)
 }
 
 #[tauri::command]
@@ -103,12 +92,6 @@ async fn login(state: AppState<'_>, email: String, password: String) -> Result<U
     }
 }
 
-#[tauri::command]
-fn open_folder(path: &str) {
-    //relative path
-    open::that(path).unwrap();
-}
-
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
@@ -118,23 +101,22 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             greet,
             login,
-            get_horse_by_id,
             add_horse,
-            open_folder,
-            get_all_horses,
-            delete_horse,
-            update_horse,
-            register_user
+            register_user,
+            get_horse,
+            list_all_horses,
+            remove_horse,
+            edit_horse,
         ])
         .setup(|app| {
             println!("Setting up");
             // this is bad i guess,
             // i need to just use migrations
-             async_runtime::spawn(async {
-                 println!("Starting up db");
-                 let conn = init_main_db().await.unwrap();
-                 create_user_table(&conn).await;
-             });
+            async_runtime::spawn(async {
+                println!("Starting up db");
+                let conn = init_main_db().await.unwrap();
+                create_user_table(&conn).await;
+            });
 
             app.manage(Mutex::new(AppStateInner::default()));
 
