@@ -7,12 +7,6 @@ use std::{
 };
 
 
-#[derive(Default)]
-pub struct AppStateInner {
-    pub user_id: String,
-}
-
-pub type AppState<'a> = State<'a, Mutex<AppStateInner>>;
 
 pub struct Stable {
     pub count: AtomicUsize,

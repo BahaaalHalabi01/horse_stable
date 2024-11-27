@@ -71,7 +71,7 @@ async fn delete_horse(state: AppState<'_>,id: u32) -> Result<bool, String> {
 
     delete_horse_query(id, &conn).await;
 
-    Ok(true)
+   Ok(true)
 }
 
 #[tauri::command]

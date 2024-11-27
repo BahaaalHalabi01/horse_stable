@@ -2,6 +2,12 @@ use horse_stable::User;
 use libsql::{params, Connection};
 
 pub async fn create_user(user: User, conn: &Connection) -> User {
+    use data_encoding::HEXUPPER;
+    use ring::error::Unspecified;
+    use ring::rand::SecureRandom;
+    use ring::{digest, pbkdf2, rand};
+    use std::num::NonZeroU32;
+
     let uuid = uuid7::uuid7();
     let mut stmt =conn.prepare(r#"
     INSERT INTO User (id, username, password, email,created_at,updated_at) VALUES (?1, ?2, ?3, ?4,?5,?6) RETURNING *;
