@@ -9,13 +9,13 @@
     deleteHorse,
   }: {
     horse: Horse;
-    deleteHorse: (v: number) => void;
+    deleteHorse: (v:string) => void;
   } = $props();
 
   let editMode = $state(false);
 
   let delete_horse: EventHandler<MouseEvent, HTMLButtonElement> = function (e) {
-    deleteHorse(Number(e.currentTarget.value));
+    deleteHorse(e.currentTarget.value);
   };
   let handle_edit: EventHandler<MouseEvent, HTMLButtonElement> =
     async function (e) {

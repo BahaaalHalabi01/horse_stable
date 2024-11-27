@@ -56,7 +56,7 @@ async fn edit_horse(state: AppState<'_>, horse: Horse) -> Result<Horse, String> 
 }
 
 #[tauri::command]
-async fn remove_horse(state: AppState<'_>, id: u32) -> Result<bool, String> {
+async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool, String> {
     let conn = get_horse_db(state).await.unwrap();
 
     Ok(delete_horse(id, &conn).await.is_ok())

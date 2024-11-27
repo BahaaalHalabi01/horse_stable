@@ -36,7 +36,7 @@
     }
   }
 
-  async function delete_horse(id: number) {
+  async function delete_horse(id: string) {
     try {
       let res = await invoke<boolean>(Commands.remove_horse, { id });
       if (res) {

@@ -84,7 +84,7 @@ SELECT * from Horse;
     horses
 }
 
-pub async fn delete_horse(id: u32, conn: &Connection) -> anyhow::Result<u64> {
+pub async fn delete_horse(id: String, conn: &Connection) -> anyhow::Result<u64> {
     conn.execute("DELETE FROM Horse  WHERE id = ?1", params![id])
         .await
         .map_err(|e| anyhow::anyhow!(e))
