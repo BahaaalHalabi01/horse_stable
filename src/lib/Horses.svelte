@@ -40,11 +40,17 @@
     try {
       let res = await invoke<boolean>(Commands.remove_horse, { id });
       if (res) {
-        horses = horses.filter((horse) => horse.id !== id);
+        horses = horses.filter((horse) => horse.id !== id.toString());
       }
     } catch (e) {
       alert(e);
     }
+  }
+
+  function setHorse(h: Horse) {
+    let copy= horses.map(h => h.id === h.id ? h : h);
+    horses = copy;
+
   }
 
   $effect(() => {
@@ -66,7 +72,7 @@
   >
 </div>
 <div class="grid grid-cols-4 gap-5">
-  {#each horses as horse}
-    <HorseCard {horse} deleteHorse={delete_horse} />
+  {#each horses as horse, i}
+    <HorseCard bind:horse={horses[i]} deleteHorse={delete_horse} />
   {/each}
 </div>

@@ -2,11 +2,15 @@
   import type { EventHandler } from "svelte/elements";
   import type { Horse } from "../types";
   import { invoke } from "@tauri-apps/api/core";
+  import { Commands } from "$src/api/ipc";
 
   let {
-    horse,
+    horse = $bindable(),
     deleteHorse,
-  }: { horse: Horse; deleteHorse: (v: number) => void } = $props();
+  }: {
+    horse: Horse;
+    deleteHorse: (v: number) => void;
+  } = $props();
 
   let editMode = $state(false);
 
@@ -16,7 +20,7 @@
   let handle_edit: EventHandler<MouseEvent, HTMLButtonElement> =
     async function (e) {
       try {
-        await invoke<boolean>("update_horse", { horse });
+        await invoke<boolean>(Commands.edit_horse, { horse });
       } catch (e) {
         alert(e);
       }
