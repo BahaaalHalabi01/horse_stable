@@ -1,7 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { getUser } from "./auth.svelte";
-    import "./app.css";
+    import "../app.css";
 
   let {children} = $props()
 

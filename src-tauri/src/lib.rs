@@ -97,11 +97,11 @@ impl fmt::Display for Gender {
     }
 }
 
-impl Into<String> for Gender {
-    fn into(self) -> String {
-        match self {
-            Gender::Male => "Male".to_string(),
-            Gender::Female => "Female".to_string(),
+impl From<Gender> for String {
+    fn from(val: Gender) -> Self {
+        match val {
+            Gender::Male => "Male1".to_string(),
+            Gender::Female => "Female1".to_string(),
         }
     }
 }

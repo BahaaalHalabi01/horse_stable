@@ -3,7 +3,8 @@
   import { invoke } from "@tauri-apps/api/core";
   import { getUser } from "./auth.svelte";
   import { Commands } from "$src/api/ipc";
-  import type { Horse } from "$src/types";
+  import {} from "$lib/Horses.svelte"
+  import type { Horse } from "../types/index.ts";
 
   let { current: user } = getUser();
   let path = $state("");
@@ -24,7 +25,7 @@
       } catch (e) {
         alert(e);
       }
-    }
+   }
     get_horses();
 
   });

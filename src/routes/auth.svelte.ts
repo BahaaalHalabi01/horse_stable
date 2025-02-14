@@ -1,6 +1,6 @@
 import type { User } from "../types";
 
-let current = $state<User|undefined>(undefined);
+let current = $state<User | undefined>(undefined);
 
 export function getUser() {
   return {
@@ -9,6 +9,6 @@ export function getUser() {
     },
     setCurrent(value: typeof current) {
       current = value;
-    }
+    },
   };
 }

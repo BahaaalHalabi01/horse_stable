@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import type { Horse } from "../types";
   import HorseCard from "./Horse-Card.svelte";
-    import { Commands } from "$src/api/ipc";
+  import { Commands } from "$src/api/ipc";
 
   let name = $state("");
   let default_horse: Horse = {

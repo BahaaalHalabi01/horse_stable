@@ -1,0 +1,17 @@
+# Ignore artifacts:
+build
+coverage
+src-tauri/*
+.git
+node_modules
+.svelte-kit
+static
+src-tauri
+dbs
+
+# files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+*.json

@@ -19,5 +19,3 @@ export interface User {
   created_at: Number;
   updated_at: Number;
 }
-
-
