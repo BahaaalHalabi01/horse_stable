@@ -1,49 +1,36 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { invoke } from "@tauri-apps/api/core";
-  import { getUser } from "./auth.svelte";
-  import { Commands } from "$src/api/ipc";
-  import {} from "$lib/Horses.svelte"
-  import type { Horse } from "../types/index.ts";
+    import { Ipc } from '$lib/ipc.svelte'
 
-  let { current: user } = getUser();
-  let path = $state("");
-  let horses: Horse[] = $state([]);
-
-  function handleOpen() {
-  }
-
-  $effect(() => {
-    if (!user) {
-      goto("/login");
-    }
-
-    async function get_horses() {
-      try {
-        horses = await invoke<Horse[]>(Commands.list_all_horses);
-        console.log(horses);
-      } catch (e) {
-        alert(e);
-      }
-   }
-    get_horses();
-
-  });
+    void Ipc.get_horses()
 </script>
 
-<div class="container mx-auto py-16">
-  <h1 class="text-4xl text-center pb-2 text-primary">Welcome</h1>
-  <h2 class="text-3xl text-center pb-10 text-secondary italic">
-    Built by Tauri!(Rust BTW)
-  </h2>
-
-  <input
-    type="text"
-    placeholder="Open folder"
-    class="w-full p-2 text-primary border-2 border-primary rounded-md"
-    bind:value={path}
-  />
-  <button class="w-full p-2 text-primary border-2 border-primary rounded-md" onclick={handleOpen}
-    >Open</button
-  >
+<div class="max-w-lg mx-auto container">
+    <h1 class="text-4xl text-center pb-2 text-primary">Welcome</h1>
+    <h2 class="text-3xl text-center pb-10 text-base-content italic">
+        Built by Tauri!(Rust BTW)
+    </h2>
+    <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 place-items-center">
+        <div class="card bg-base-300 w-96 shadow-sm">
+            <figure>
+                <img
+                    src="https://img.daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.webp"
+                    alt="Shoes"
+                />
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">
+                    Card Title
+                    <div class="badge badge-secondary">NEW</div>
+                </h2>
+                <p>
+                    A card component has a figure, a body part, and inside body
+                    there are title and actions parts
+                </p>
+                <div class="card-actions justify-end">
+                    <div class="badge badge-outline">Fashion</div>
+                    <div class="badge badge-outline">Products</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

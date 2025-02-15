@@ -2,8 +2,7 @@
 
 @plugin "daisyui" {
   themes:
-    light --default,
-    emerald;
+    halloween --default
 }
 
 /*

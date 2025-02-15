@@ -4,9 +4,11 @@
   import type { User } from "$src/types/index";
   import { getUser } from "../auth.svelte";
 
-  let { current, setCurrent } = getUser();
+  let { current, setCurrent } = getUser()
   let email = $state("");
   let password = $state("");
+
+  $inspect(current)
 
   async function login() {
     try {
@@ -20,22 +22,21 @@
   }
 </script>
 
-<div class="container mx-auto py-16">
+<div class=" mx-auto py-16 space-y-4 max-w-md">
   <h1 class="text-3xl font-bold">Login</h1>
   <input
     type="text"
     bind:value={email}
     placeholder="Email"
-    class="w-full p-2 border-2 border-gray-400 rounded-md"
+    class="input w-full"
   />
   <input
     type="password"
     bind:value={password}
     placeholder="Password"
-    class="w-full p-2 border-2 border-gray-400 rounded-md"
+    class="input w-full"
   />
-  <button class="w-full p-2 bg-blue-500 text-white rounded-md" onclick={login}
+  <button class="btn w-full btn-primary" onclick={login}
     >Login</button
   >
-  <hr class="my-4" />
 </div>

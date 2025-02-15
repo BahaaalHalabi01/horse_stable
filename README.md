@@ -33,3 +33,16 @@ For our nice horses
 the above should have a timer, and autmatically when the timer is up, the horse status is set to false
 
 Create the dbs in a destination folder able to be specified by the installer
+
+
+## What i wrote down for myself
+- See all barns
+- Who is working on what barn
+-- Current horse in a barn
+- History info of a barn , last time it was cleaned, last person who worked on it.
+- See all the horses with info about them
+- What is the horse doing right now, search for it in a list with like autocomplete based on any attribute
+- History of a horse with some statistics
+- Employee info
+- Be ably to assign a horse to an employee
+- Allow owners to access the data and see what their horse is doing.
