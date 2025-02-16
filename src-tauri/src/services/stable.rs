@@ -1,63 +1,71 @@
-use horse_stable::Stable;
-use libsql::params;
+use std::time::SystemTime;
 
-fn from_row(row: libsql::Row) -> Stable {
-    Stable::from_db(
-        row.get(0).unwrap(),
-        row.get(1).unwrap(),
-        row.get(2).unwrap(),
-        row.get(3).unwrap(),
-        row.get(4).unwrap(),
-        row.get(5).unwrap(),
-        row.get(6).unwrap(),
-    )
-}
+use horse_stable::{Stable, StableCreate};
+use libsql::{params, Result};
 
-pub async fn get_stable(id: u32, conn: &libsql::Connection) -> Option<horse_stable::Stable> {
+pub async fn get_stable(
+    id: u32,
+    conn: &libsql::Connection,
+) -> Result<Option<horse_stable::Stable>> {
     let mut stmt = conn
         .prepare(
             r#"
     SELECT * FROM Stable WHERE id = ?1;
     "#,
         )
-        .await
-        .unwrap();
+        .await?;
 
-    let mut response = stmt.query(params![id]).await.unwrap();
+    let mut response = stmt.query(params![id]).await?;
 
-    match response.next().await.unwrap() {
-        Some(row) => Some(from_row(row)),
-        None => None,
-    }
+    response.next().await?.map(Stable::try_from).transpose()
 }
 
 pub async fn create_stable(
-    stable: Stable,
+    stable: StableCreate,
     conn: &libsql::Connection,
-) -> Option<horse_stable::Stable> {
+) -> Result<Option<horse_stable::Stable>> {
+    let created_at = SystemTime::now()
+        .duration_since(SystemTime::UNIX_EPOCH)
+        .map(|e| e.as_secs());
+    let updated_at = created_at.clone();
+
+    if created_at.is_err() {
+        panic!("Could not get current time, please try again");
+    }
+
+    let mut response = conn
+        .query(r#"
+        insert into Stable (name, address, monthly_fee, created_at, updated_at) values (?1, ?2, ?3, ?4, ?5) returning *;
+        "#,
+        params![
+            stable.name,
+            stable.address,
+            stable.monthly_fee,
+            created_at.unwrap_or(0),
+            updated_at.unwrap_or(0),
+        ]
+        )
+        .await?;
+
+    response.next().await?.map(Stable::try_from).transpose()
+}
+
+pub async fn list_stables(conn: &libsql::Connection) -> Result<Vec<Stable>> {
     let mut stmt = conn
         .prepare(
             r#"
-            insert into Stable (name, address, monthly_fee, created_at, updated_at, horse_count) values (?1, ?2, ?3, ?4, ?5, ?6) returning *;
+    SELECT * FROM Stable;
     "#,
         )
-        .await
-        .unwrap();
+        .await?;
 
-    let mut response = stmt
-        .query(params![
-            stable.name(),
-            stable.address(),
-            stable.monthly_fee(),
-            stable.created_at(),
-            stable.updated_at(),
-            stable.horse_count().into_inner(),
-        ])
-        .await
-        .unwrap();
+    let mut response = stmt.query(()).await?;
 
-    match response.next().await.unwrap() {
-        Some(row) => Some(from_row(row)),
-        None => None,
+    let mut stables = Vec::new();
+
+    while let Ok(Some(row)) = response.next().await {
+        stables.push(Stable::try_from(row)?);
     }
+
+    Ok(stables)
 }

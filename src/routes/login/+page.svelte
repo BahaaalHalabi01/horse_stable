@@ -4,16 +4,13 @@
   import type { User } from "$src/types/index";
   import { getUser } from "../auth.svelte";
 
-  let { current, setCurrent } = getUser()
+  let { setCurrent } = getUser();
   let email = $state("");
   let password = $state("");
-
-  $inspect(current)
 
   async function login() {
     try {
       let res = await invoke<User>("login", { email, password });
-      console.log(res);
       setCurrent(res);
       void goto("/");
     } catch (e) {
@@ -39,4 +36,8 @@
   <button class="btn w-full btn-primary" onclick={login}
     >Login</button
   >
+  <hr />
+  <p class="text-center text-sm">
+    Don't have an account? <a href="/register">Register</a>
+  </p>
 </div>

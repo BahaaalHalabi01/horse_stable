@@ -1,11 +1,8 @@
 use serde::{Deserialize, Serialize};
-use std::{
-    fmt,
-    sync::atomic::{AtomicU64, Ordering},
-    time::SystemTime,
-};
+use std::{fmt, time::SystemTime};
 
 //same order stored in the db
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Stable {
     id: u32,
     name: String,
@@ -13,12 +10,17 @@ pub struct Stable {
     monthly_fee: u32,
     created_at: u64,
     updated_at: u64,
-    horse_count: AtomicU64,
+}
+
+#[derive(Deserialize)]
+pub struct StableCreate {
+    pub name: String,
+    pub address: String,
+    pub monthly_fee: u32,
 }
 
 impl Stable {
-    pub fn new(id: u32, name: String, address: String, monthly_fee: u32, horse_count: u64) -> Self {
-        let horse_count = AtomicU64::new(horse_count);
+    pub fn new(id: u32, name: String, address: String, monthly_fee: u32) -> Self {
         let now = SystemTime::now()
             .duration_since(SystemTime::UNIX_EPOCH)
             .unwrap()
@@ -30,36 +32,11 @@ impl Stable {
             monthly_fee,
             created_at: now,
             updated_at: now,
-            horse_count,
-        }
-    }
-
-    pub fn from_db(
-        id: u32,
-        name: String,
-        address: String,
-        monthly_fee: u32,
-        created_at: u64,
-        updated_at: u64,
-        horse_count: u64,
-    ) -> Self {
-        let horse_count = AtomicU64::new(horse_count);
-        Stable {
-            id,
-            name,
-            address,
-            monthly_fee,
-            created_at,
-            updated_at,
-            horse_count,
         }
     }
 
     pub fn id(&self) -> u32 {
         self.id
-    }
-    pub fn horse_count(self) -> AtomicU64 {
-        self.horse_count
     }
     pub fn name(&self) -> String {
         self.name.clone()
@@ -76,9 +53,20 @@ impl Stable {
     pub fn updated_at(&self) -> u64 {
         self.updated_at
     }
+}
 
-    pub fn new_horse(&self) -> u32 {
-        self.horse_count.fetch_add(1, Ordering::Relaxed) as u32
+impl TryFrom<libsql::Row> for Stable {
+    type Error = libsql::Error;
+
+    fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
+        Ok(Stable {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            address: row.get(2)?,
+            monthly_fee: row.get(3)?,
+            created_at: row.get(4)?,
+            updated_at: row.get(5)?,
+        })
     }
 }
 
@@ -88,12 +76,9 @@ pub enum Gender {
     Female,
 }
 
-
 impl fmt::Display for Gender {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "{:?}", self)
-        // or, alternatively:
-        // fmt::Debug::fmt(self, f)
     }
 }
 
@@ -118,58 +103,19 @@ impl From<String> for Gender {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Horse {
-     id: String,
-     name: String,
-     breed: String,
-     color: String,
-     nationality: String,
-     age: u32,
-     gender: Gender,
-     weight: u32,
-     height: u32,
-     length: u32,
+    id: String,
+    name: String,
+    breed: String,
+    color: String,
+    nationality: String,
+    age: u32,
+    gender: Gender,
+    weight: u32,
+    height: u32,
+    length: u32,
 }
 
 impl Horse {
-    // pub fn new(name: String, stable: &Stable) -> Self {
-    //     Horse {
-    //         id: stable.new_horse(),
-    //         name,
-    //         breed: String::from("Arabic"),
-    //         color: String::from("red"),
-    //         nationality: String::from("lebanese"),
-    //         gender: Gender::Male,
-    //         weight: 244,
-    //         age: 10,
-    //         height: 145,
-    //         length: 250,
-    //     }
-    // }
-    pub fn from_db(
-        id: String,
-        name: String,
-        breed: String,
-        color: String,
-        nationality: String,
-        age: u32,
-        gender: String,
-        weight: u32,
-        height: u32,
-        length: u32,
-    ) -> Self {
-        Horse {
-            id,
-            name,
-            breed,
-            color,
-            nationality,
-            gender: gender.into(),
-            weight,
-            age,
-            height,
-            length,
-        }
-    }
 
     pub fn id(&self) -> &str {
         &self.id
@@ -178,7 +124,7 @@ impl Horse {
         &self.name
     }
     pub fn breed(&self) -> &str {
-        &self.breed 
+        &self.breed
     }
     pub fn color(&self) -> &str {
         &self.color
@@ -200,6 +146,27 @@ impl Horse {
     }
     pub fn length(&self) -> u32 {
         self.length
+    }
+
+
+}
+
+impl TryFrom<libsql::Row> for Horse {
+    type Error = libsql::Error;
+
+    fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
+        Ok(Horse {
+            id: row.get(0)?,
+            name: row.get(1)?,
+            breed: row.get(2)?,
+            color: row.get(3)?,
+            nationality: row.get(4)?,
+            age: row.get(5)?,
+            gender: row.get::<String>(6)?.into(),
+            weight: row.get(7)?,
+            height: row.get(8)?,
+            length: row.get(9)?,
+        })
     }
 }
 
@@ -247,3 +214,4 @@ impl User {
         }
     }
 }
+

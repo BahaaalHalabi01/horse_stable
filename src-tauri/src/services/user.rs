@@ -1,5 +1,5 @@
 use horse_stable::User;
-use libsql::{params, Connection};
+use libsql::{params, Connection,Result};
 
 fn from_row(row: libsql::Row) -> User {
     User::from_db(
@@ -39,22 +39,18 @@ pub async fn create_user(user: User, conn: &Connection) -> User {
     ret
 }
 
-pub async fn get_user_by_id(id: u32, conn: &Connection) -> Option<User> {
+pub async fn get_user_by_id(id: String, conn: &Connection) ->Result<Option<User>> {
     let mut stmt = conn
         .prepare(
             r#"
     SELECT * FROM User WHERE id = ?1;
     "#,
         )
-        .await
-        .unwrap();
+        .await?;
 
-    let mut response = stmt.query(params![id]).await.unwrap();
+    let mut response = stmt.query(params![id]).await?;
 
-    match response.next().await.unwrap() {
-        Some(row) => Some(from_row(row)),
-        None => None,
-    }
+     Ok(response.next().await?.and_then(|row| Some(from_row(row))))
 }
 
 pub async fn has_user(email: String, conn: &Connection) -> bool {

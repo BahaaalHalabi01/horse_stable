@@ -1,13 +1,18 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use db::{create_user_table, get_horse_db, init_main_db};
-use horse_stable::{Horse, User};
-use services::{create_horse, create_user, delete_horse, get_all_horses, get_horse_by_id, get_user_by_login, has_user, update_horse};
+use db::{create_user_table, get_horse_db, get_stable_db, init_main_db};
+use horse_stable::{Horse, Stable, StableCreate, User};
+use services::{
+    create_horse, create_user, delete_horse, get_all_horses, get_horse_by_id, get_user_by_login,
+    has_user, update_horse,
+};
 use tauri::{async_runtime, Manager, State};
 use tokio::sync::Mutex;
 mod db;
 mod services;
+
+type Result<T> = std::result::Result<T, String>;
 
 #[derive(Default)]
 pub struct AppStateInner {
@@ -16,55 +21,86 @@ pub struct AppStateInner {
 
 pub type AppState<'a> = State<'a, Mutex<AppStateInner>>;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    println!("Is this real ? inside rust ? {}", name);
-    format!("Hello, {}! You've been greeted from Rust!", name)
+fn map_err(e: libsql::Error) -> String {
+    e.to_string()
 }
 
 #[tauri::command]
-async fn get_horse(state: AppState<'_>, id: u32) -> Result<Option<Horse>, String> {
+async fn get_current_user(state: AppState<'_>) -> Result<Option<User>> {
+    let app_state = state.lock().await;
+    let conn = init_main_db().await.unwrap();
+
+    let user_id = app_state.user_id.clone();
+
+    services::get_user_by_id(user_id, &conn)
+        .await
+        .map_err(map_err)
+}
+
+
+#[tauri::command]
+async fn create_stable(state: AppState<'_>, stable: StableCreate) -> Result<Option<Stable>> {
+    let conn = get_stable_db(state).await.map_err(map_err)?;
+
+    services::create_stable(stable, &conn)
+        .await
+        .map_err(map_err)
+}
+
+
+#[tauri::command]
+async fn list_stables(state: AppState<'_>) -> Result<Vec<Stable>> {
+    let conn = get_stable_db(state).await.map_err(map_err)?;
+
+    services::list_stables(&conn).await.map_err(map_err)
+}
+
+#[tauri::command]
+async fn get_stable(state: AppState<'_>, id: u32) -> Result<Option<Stable>> {
+    let conn = get_stable_db(state).await.map_err(map_err)?;
+
+    services::get_stable(id, &conn).await.map_err(map_err)
+}
+
+#[tauri::command]
+async fn get_horse(state: AppState<'_>, id: u32) -> Result<Option<Horse>> {
+    let conn = get_horse_db(state).await.map_err(map_err)?;
+
+    get_horse_by_id(id, &conn).await.map_err(map_err)
+}
+
+#[tauri::command]
+async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>> {
     let conn = get_horse_db(state).await.unwrap();
 
-    Ok(get_horse_by_id(id, &conn).await.unwrap())
+     get_all_horses(&conn).await.map_err(map_err)
+
 }
 
 #[tauri::command]
-async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>, String> {
-    let conn = get_horse_db(state).await.unwrap();
-
-    let horses = get_all_horses(&conn).await;
-
-    Ok(horses)
-}
-
-#[tauri::command]
-async fn add_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>, String> {
+async fn add_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>> {
     let conn = get_horse_db(state).await.unwrap();
 
     Ok(create_horse(horse, &conn).await.unwrap())
-
 }
 
 #[tauri::command]
-async fn edit_horse(state: AppState<'_>, horse: Horse) -> Result<Horse, String> {
-    println!("{:?}", horse);
-    let conn = get_horse_db(state).await.unwrap();
+async fn edit_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>> {
 
-    Ok(update_horse(horse, &conn).await)
+    let conn = get_horse_db(state).await.map_err(map_err)?;
+
+    update_horse(horse, &conn).await.map_err(map_err)
 }
 
 #[tauri::command]
-async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool, String> {
+async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool> {
     let conn = get_horse_db(state).await.unwrap();
 
     Ok(delete_horse(id, &conn).await.is_ok())
-
 }
 
 #[tauri::command]
-async fn register_user(state: AppState<'_>, user: User) -> Result<User, String> {
+async fn register_user(state: AppState<'_>, user: User) -> Result<User> {
     println!("Registering user {:?}", user);
     let conn = init_main_db().await.unwrap();
 
@@ -80,7 +116,7 @@ async fn register_user(state: AppState<'_>, user: User) -> Result<User, String> 
 }
 
 #[tauri::command]
-async fn login(state: AppState<'_>, email: String, password: String) -> Result<User, String> {
+async fn login(state: AppState<'_>, email: String, password: String) -> Result<User> {
     let conn = init_main_db().await.unwrap();
 
     match get_user_by_login(email, password, &conn).await {
@@ -99,7 +135,6 @@ fn main() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
-            greet,
             login,
             add_horse,
             register_user,
@@ -107,6 +142,10 @@ fn main() {
             list_all_horses,
             remove_horse,
             edit_horse,
+            create_stable,
+            list_stables,
+            get_stable,
+            get_current_user,
         ])
         .setup(|app| {
             println!("Setting up");

@@ -6,7 +6,7 @@
 
   let email = $state("");
   let password = $state("");
-  let { current, setCurrent } = getUser();
+  let { setCurrent } = getUser();
   async function register() {
     let user: User = {
       id: "",
@@ -19,7 +19,6 @@
 
     try {
       let res = await invoke<User>("register_user", { user });
-      console.log(res);
       setCurrent(res);
       void goto("/");
     } catch (e) {

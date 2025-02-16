@@ -56,13 +56,13 @@ pub async fn get_stable_db(app_state: AppState<'_>) -> Result<Connection, Error>
     let db = Builder::new_local(format!("../dbs/{}.db", user_id))
         .build()
         .await
-        .expect(&format!("could not create db for {}", user_id));
+        .unwrap_or_else(|_| panic!("could not create db for {}", user_id));
 
     let conn = db.connect()?;
 
     // this is bad i guess,
     // i need to just use migrations
-    create_stable_table(&conn).await;
+    create_stable_table(&conn).await?;
 
     Ok(conn)
 }

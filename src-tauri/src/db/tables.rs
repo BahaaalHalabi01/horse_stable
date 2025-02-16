@@ -1,4 +1,4 @@
-use libsql::Connection;
+use libsql::{Connection, Result};
 
 pub async fn create_horse_table(conn: &Connection) {
     conn.execute(
@@ -13,7 +13,11 @@ pub async fn create_horse_table(conn: &Connection) {
     gender TEXT NOT NULL,
     weight INTEGER NOT NULL,
     height INTEGER NOT NULL,
-    length INTEGER NOT NULL
+    length INTEGER NOT NULL,
+    stable_id INTEGER NOT NULL,
+    FOREIGN KEY(stable_id) REFERENCES Horse(id)
+    ON DELETE CASCADE
+    ON UPDATE NO ACTION
 )"#,
         (),
     )
@@ -21,7 +25,7 @@ pub async fn create_horse_table(conn: &Connection) {
     .unwrap();
 }
 
-pub async fn create_stable_table(conn: &Connection) {
+pub async fn create_stable_table(conn: &Connection)-> Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Stable (
@@ -30,13 +34,11 @@ pub async fn create_stable_table(conn: &Connection) {
     address TEXT NOT NULL,
     monthly_fee INTEGER NOT NULL,
     created_at INTEGER NOT NULL,
-    updated_at INTEGER NOT NULL,
-    horse_count INTEGER NOT NULL
+    updated_at INTEGER NOT NULL
 )"#,
         (),
     )
     .await
-    .unwrap();
 }
 
 pub async fn create_user_table(conn: &Connection) {
@@ -55,3 +57,4 @@ pub async fn create_user_table(conn: &Connection) {
     .await
     .unwrap();
 }
+

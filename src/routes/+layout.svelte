@@ -1,10 +1,15 @@
 <script lang="ts">
     import { getUser } from './auth.svelte'
     import '../app.css'
+    import { Ipc } from '$src/lib/ipc.svelte'
 
     let { children } = $props()
 
     let {  user } = getUser()
+
+    $effect(()=>{
+      void Ipc.get_current_user()
+    })
 
 </script>
 
