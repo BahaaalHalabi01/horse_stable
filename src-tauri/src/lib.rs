@@ -115,6 +115,19 @@ pub struct Horse {
     length: u32,
 }
 
+#[derive(Deserialize)]
+pub struct HorseCreate {
+    pub name: String,
+    pub breed: String,
+    pub color: String,
+    pub nationality: String,
+    pub age: u32,
+    pub gender: Gender,
+    pub weight: u32,
+    pub height: u32,
+    pub length: u32,
+}
+
 impl Horse {
 
     pub fn id(&self) -> &str {

@@ -1,6 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { goto } from "$app/navigation";
-import type { Horse, Stable, StableCreate, User } from "$src/types";
+import type { Horse, HorseCreate, Stable, StableCreate, User } from "$src/types";
 import { Commands } from "$lib/ipc.defaults";
 import { getUser } from "$src/routes/auth.svelte";
 
@@ -85,9 +85,13 @@ class GlobalState {
       alert(e);
     }
   }
-  async add_horse(horse: Horse) {
+  async add_horse(stableId: number, horse: Partial<HorseCreate>) {
     try {
-      await invoke<boolean>(Commands.add_horse, { horse });
+      let res = await invoke<Horse | undefined>(Commands.add_horse, { stableId, horse });
+      if (res) {
+        this.result = res
+        this._state.horses.push(res)
+      }
     } catch (e) {
       alert(e);
     }

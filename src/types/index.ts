@@ -11,6 +11,8 @@ export interface Horse {
   length: number;
 }
 
+export type HorseCreate  = Pick<Horse, "name" | "breed" | "color" | "nationality" | "age" | "gender" | "weight" | "height" | "length">;
+
 export interface User {
   id: string;
   email: string;

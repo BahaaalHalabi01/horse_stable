@@ -23,10 +23,16 @@
             class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 place-items-center md:place-items-start"
         >
             {#each stables as stable}
-                <div class="card bg-base-300 shadow-sm ">
-                    <figure>
-                        <img width="100%" src="/stable-card.jpg" alt="Stable" />
-                    </figure>
+                <div class="card bg-base-300 shadow-sm">
+                    <a href={`/stable/${stable.id}`} class="contents">
+                        <figure>
+                            <img
+                                width="100%"
+                                src="/stable-card.jpg"
+                                alt="Stable"
+                            />
+                        </figure>
+                    </a>
                     <div class="card-body">
                         <h2 class="card-title">
                             {stable.name}

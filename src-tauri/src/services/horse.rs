@@ -1,24 +1,25 @@
-use horse_stable::Horse;
+use horse_stable::{Horse, HorseCreate};
 use libsql::{params, Connection, Result};
 
-pub async fn create_horse(horse: Horse, conn: &Connection) -> Result<Option<Horse>> {
+pub async fn create_horse(stable_id:u32,horse: HorseCreate, conn: &Connection) -> Result<Option<Horse>> {
     let uuid = uuid7::uuid7();
     let mut stmt = conn.prepare(r#"
-    INSERT INTO Horse (id, name, breed, color, nationality, gender, weight, age, height, length) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10) RETURNING *;
+    INSERT INTO Horse (id, name, breed, color, nationality, gender, weight, age, height, length,stable_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,?11) RETURNING *;
     "#).await?;
 
     let mut response = stmt
         .query(params![
             uuid.to_string(),
-            horse.name(),
-            horse.breed(),
-            horse.color(),
-            horse.nationality(),
-            horse.gender().to_string(),
-            horse.weight(),
-            horse.age(),
-            horse.height(),
-            horse.length(),
+            horse.name,
+            horse.breed,
+            horse.color,
+            horse.nationality,
+            horse.gender.to_string(),
+            horse.weight,
+            horse.age,
+            horse.height,
+            horse.length,
+            stable_id
         ])
         .await?;
 

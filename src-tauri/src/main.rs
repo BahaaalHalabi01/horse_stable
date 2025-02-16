@@ -2,7 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use db::{create_user_table, get_horse_db, get_stable_db, init_main_db};
-use horse_stable::{Horse, Stable, StableCreate, User};
+use horse_stable::{Horse, HorseCreate, Stable, StableCreate, User};
 use services::{
     create_horse, create_user, delete_horse, get_all_horses, get_horse_by_id, get_user_by_login,
     has_user, update_horse,
@@ -78,10 +78,10 @@ async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>> {
 }
 
 #[tauri::command]
-async fn add_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>> {
-    let conn = get_horse_db(state).await.unwrap();
+async fn add_horse(state: AppState<'_>, stable_id:u32 ,horse: HorseCreate) -> Result<Option<Horse>> {
+    let conn = get_horse_db(state).await.map_err(map_err)?;
 
-    Ok(create_horse(horse, &conn).await.unwrap())
+    create_horse(stable_id,horse, &conn).await.map_err(map_err)
 }
 
 #[tauri::command]
