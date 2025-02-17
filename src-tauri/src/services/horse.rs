@@ -62,6 +62,10 @@ SELECT * from Horse;
 }
 
 pub async fn delete_horse(id: String, conn: &Connection) -> anyhow::Result<u64> {
+    if id.is_empty() {
+        return Err(anyhow::anyhow!("id is empty"));
+    }
+    println!("deleting horse with id {}", id);
     conn.execute("DELETE FROM Horse  WHERE id = ?1", params![id])
         .await
         .map_err(|e| anyhow::anyhow!(e))

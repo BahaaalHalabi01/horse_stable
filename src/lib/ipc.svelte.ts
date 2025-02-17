@@ -67,12 +67,14 @@ class GlobalState {
 
   async delete_horse(id: string) {
     try {
-
       this.horses = this.horses.filter((horse) => horse.id !== id.toString());
-      let res = await invoke<boolean>(Commands.remove_horse, { id })
-      if (res) {
-        this.result = res
-      }
+      // let res = await invoke<boolean>(Commands.remove_horse, { id })
+      // if (!res) {
+      //   alert("Failed to delete horse")
+      //   return
+      // }
+
+      // this.result = res
     } catch (e) {
       alert(e);
     }

@@ -12,6 +12,7 @@
 
 </script>
 
+<div class="mx-auto container">
 <div class="flex">
     <div class="flex flex-col">
         <h1 class="text-4xl text-start pb-2 text-primary">{stable?.name}</h1>
@@ -19,7 +20,7 @@
             {stable?.address}
         </h2>
         <div>
-            <a class="btn btn-primary" href={`/stable/${stable_id}/horse-add`}> Add a new Horse </a>
+            <a class="btn btn-primary" href={`/stable/${stable?.id}/horse-add`}> Add a new Horse </a>
         </div>
     </div>
 
@@ -34,4 +35,5 @@
     {#each Ipc.horses as _, i}
         <HorseCard bind:horse={Ipc.horses[i]} />
     {/each}
+</div>
 </div>
