@@ -1,7 +1,11 @@
 use horse_stable::{Horse, HorseCreate};
 use libsql::{params, Connection, Result};
 
-pub async fn create_horse(stable_id:u32,horse: HorseCreate, conn: &Connection) -> Result<Option<Horse>> {
+pub async fn create_horse(
+    stable_id: u32,
+    horse: HorseCreate,
+    conn: &Connection,
+) -> Result<Option<Horse>> {
     let uuid = uuid7::uuid7();
     let mut stmt = conn.prepare(r#"
     INSERT INTO Horse (id, name, breed, color, nationality, gender, weight, age, height, length,stable_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,?11) RETURNING *;
@@ -95,6 +99,57 @@ pub async fn update_horse(horse: Horse, conn: &Connection) -> Result<Option<Hors
             horse.id()
         ])
         .await?;
+
+    res.next().await?.map(Horse::try_from).transpose()
+}
+
+pub async fn water_horse(id: String, water: u32, conn: &Connection) -> Result<Option<Horse>> {
+    let mut stmt = conn
+        .prepare(
+            r#"
+    UPDATE OR IGNORE Horse  
+    SET water = ?2
+    WHERE id = ?1
+    RETURNING *
+    "#,
+        )
+        .await?;
+
+    let mut res = stmt.query(params![id, water]).await?;
+
+    res.next().await?.map(Horse::try_from).transpose()
+}
+
+pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<Option<Horse>> {
+    let mut stmt = conn
+        .prepare(
+            r#"
+    UPDATE OR IGNORE Horse  
+    SET food = ?2
+    WHERE id = ?1
+    RETURNING *
+    "#,
+        )
+        .await?;
+
+    let mut res = stmt.query(params![id, food]).await?;
+
+    res.next().await?.map(Horse::try_from).transpose()
+}
+
+pub async fn clean_horse(id: String, cleaness: u32, conn: &Connection) -> Result<Option<Horse>> {
+    let mut stmt = conn
+        .prepare(
+            r#"
+    UPDATE OR IGNORE Horse  
+    SET cleaness = ?2
+    WHERE id = ?1
+    RETURNING *
+    "#,
+        )
+        .await?;
+
+    let mut res = stmt.query(params![id, cleaness]).await?;
 
     res.next().await?.map(Horse::try_from).transpose()
 }

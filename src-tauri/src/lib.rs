@@ -1,6 +1,10 @@
 use serde::{Deserialize, Serialize};
 use std::{fmt, time::SystemTime};
 
+mod models;
+
+pub use models::*;
+
 //same order stored in the db
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Stable {
@@ -101,87 +105,6 @@ impl From<String> for Gender {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
-pub struct Horse {
-    id: String,
-    name: String,
-    breed: String,
-    color: String,
-    nationality: String,
-    age: u32,
-    gender: Gender,
-    weight: u32,
-    height: u32,
-    length: u32,
-}
-
-#[derive(Deserialize)]
-pub struct HorseCreate {
-    pub name: String,
-    pub breed: String,
-    pub color: String,
-    pub nationality: String,
-    pub age: u32,
-    pub gender: Gender,
-    pub weight: u32,
-    pub height: u32,
-    pub length: u32,
-}
-
-impl Horse {
-
-    pub fn id(&self) -> &str {
-        &self.id
-    }
-    pub fn name(&self) -> &str {
-        &self.name
-    }
-    pub fn breed(&self) -> &str {
-        &self.breed
-    }
-    pub fn color(&self) -> &str {
-        &self.color
-    }
-    pub fn nationality(&self) -> &str {
-        &self.nationality
-    }
-    pub fn age(&self) -> u32 {
-        self.age
-    }
-    pub fn gender(&self) -> &Gender {
-        &self.gender
-    }
-    pub fn weight(&self) -> u32 {
-        self.weight
-    }
-    pub fn height(&self) -> u32 {
-        self.height
-    }
-    pub fn length(&self) -> u32 {
-        self.length
-    }
-
-
-}
-
-impl TryFrom<libsql::Row> for Horse {
-    type Error = libsql::Error;
-
-    fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
-        Ok(Horse {
-            id: row.get(0)?,
-            name: row.get(1)?,
-            breed: row.get(2)?,
-            color: row.get(3)?,
-            nationality: row.get(4)?,
-            age: row.get(5)?,
-            gender: row.get::<String>(6)?.into(),
-            weight: row.get(7)?,
-            height: row.get(8)?,
-            length: row.get(9)?,
-        })
-    }
-}
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct User {

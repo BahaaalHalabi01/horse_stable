@@ -9,6 +9,7 @@ export interface Horse {
   weight: number;
   height: number;
   length: number;
+  cleaness: number;
 }
 
 export type HorseCreate  = Pick<Horse, "name" | "breed" | "color" | "nationality" | "age" | "gender" | "weight" | "height" | "length">;

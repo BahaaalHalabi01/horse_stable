@@ -7,7 +7,8 @@
 
     let horse = $derived(Ipc.horses.find((h) => h.id === horse_id))
 
-    if (horse === undefined) {
+    // svelte-ignore state_referenced_locally
+        if (horse === undefined) {
         throw new Error('Horse not found')
     }
 </script>
@@ -16,7 +17,6 @@
     <div class="flex">
         <div class="flex flex-col">
             <h1 class="text-4xl text-start pb-2 text-primary">{horse.name}</h1>
-            <h2 class="text-3xl pb-10 text-base-content italic"></h2>
         </div>
 
         <figure class="size-52 ml-auto rounded">

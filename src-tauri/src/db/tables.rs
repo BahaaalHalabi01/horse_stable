@@ -14,6 +14,7 @@ pub async fn create_horse_table(conn: &Connection) {
     weight INTEGER NOT NULL,
     height INTEGER NOT NULL,
     length INTEGER NOT NULL,
+    cleaness INTEGER NOT NULL,
     stable_id INTEGER NOT NULL,
     FOREIGN KEY(stable_id) REFERENCES Stable(id)
     ON DELETE CASCADE
