@@ -100,7 +100,7 @@ async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool> {
 }
 
 #[tauri::command]
-async fn register_user(state: AppState<'_>, user: User) -> Result<User> {
+async fn register_user(state: AppState<'_>, user: User) -> Result<Option<User>> {
     println!("Registering user {:?}", user);
 
     let conn = get_main_db_conn().await.unwrap();
@@ -112,20 +112,22 @@ async fn register_user(state: AppState<'_>, user: User) -> Result<User> {
 
     let res = create_user(user, &conn).await;
 
-    state.lock().await.user_id = res.id.clone();
-    Ok(res)
+    if let Ok(Some(ref user)) = res {
+        state.lock().await.user_id = user.id.clone();
+    };
+
+    res.map_err(|e| e.to_string())
 }
 
 #[tauri::command]
 async fn login(state: AppState<'_>, email: String, password: String) -> Result<User> {
     let conn = get_main_db_conn().await.unwrap();
 
-    match get_user_by_login(email, password, &conn).await {
-        Some(user) => {
-            state.lock().await.user_id = user.id.clone();
-            Ok(user)
-        }
-        None => Err("Invalid credentials".to_string()),
+    if let Ok(Some(user)) = get_user_by_login(email, password, &conn).await {
+        state.lock().await.user_id = user.id.clone();
+        Ok(user)
+    } else {
+        Err("Invalid credentials".to_string())
     }
 }
 

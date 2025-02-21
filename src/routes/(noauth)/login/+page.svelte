@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { goto } from "$app/navigation";
   import type { User } from "$src/types/index";
-  import { getUser } from "../auth.svelte";
+  import { getUser } from "$src/routes/auth.svelte";
 
   let { setCurrent } = getUser();
   let email = $state("");

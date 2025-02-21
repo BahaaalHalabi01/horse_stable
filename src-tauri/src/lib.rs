@@ -151,3 +151,18 @@ impl User {
     }
 }
 
+
+impl TryFrom<libsql::Row> for User {
+    type Error = libsql::Error;
+
+    fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
+        Ok(User {
+            id: row.get(0)?,
+            username: row.get(1)?,
+            email: row.get(2)?,
+            password: row.get(3)?,
+            created_at: row.get(4)?,
+            updated_at: row.get(5)?,
+        })
+    }
+}

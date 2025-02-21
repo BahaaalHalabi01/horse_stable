@@ -1,21 +1,15 @@
 <script lang="ts">
+    import '$src/app.css'
     import { getUser } from './auth.svelte'
-    import '../app.css'
-    import { Ipc } from '$src/lib/ipc.svelte'
 
     let { children } = $props()
-
-    let {  user } = getUser()
-
-    $effect(()=>{
-      void Ipc.get_current_user()
-    })
-
+    let { user } = getUser()
 </script>
 
 <main class="grow p-4">
     {@render children()}
 </main>
+
 <footer
     class="footer footer-horizontal footer-center bg-neutral text-base-content rounded p-10"
 >
@@ -28,7 +22,6 @@
         <a class="link link-hover" href="/">Home</a>
         <a class="link link-hover" href="/horses">Horses</a>
         <a class="link link-hover" href="/contact-us">Contact Us</a>
-
     </nav>
     <nav>
         <div class="grid grid-flow-col gap-4">

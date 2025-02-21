@@ -21,9 +21,6 @@ pub async fn get_main_db_conn() -> Result<Connection> {
     .connect()
 }
 
-pub async fn init_user_table(conn: &Connection) -> Result<u64> {
-    create_user_table(conn).await
-}
 
 pub async fn get_db_conn(user_id: String) -> Result<Connection> {
     if user_id.is_empty() {
@@ -32,10 +29,14 @@ pub async fn get_db_conn(user_id: String) -> Result<Connection> {
     let db_dir = get_db_dir().join(&user_id).with_extension("db");
 
     println!("creating db_dir: {:?}", db_dir);
-    Builder::new_local(db_dir.join(&user_id).with_extension("db"))
+    Builder::new_local(db_dir)
         .build()
         .await?
         .connect()
+}
+
+pub async fn init_user_table(conn: &Connection) -> Result<u64> {
+    create_user_table(conn).await
 }
 
 pub async fn get_horse_db(app_state: AppState<'_>) -> Result<Connection> {

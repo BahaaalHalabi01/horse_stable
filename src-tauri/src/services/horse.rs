@@ -123,7 +123,6 @@ pub async fn water_horse(id: String, water: u32, conn: &Connection) -> Result<Op
 }
 
 pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<Option<Horse>> {
-
     println!("Tring to feed horse {} for {}", id, food);
 
     let mut stmt = conn
@@ -209,7 +208,7 @@ mod tests {
     async fn feed_horse() {
         let app = create_app(tauri::test::mock_builder());
 
-            let state:crate::AppState = app.state();
+        let state: crate::AppState = app.state();
         let conn = crate::db::get_horse_db(app.state()).await.unwrap();
 
         let horses = super::get_all_horses(&conn).await.unwrap();
