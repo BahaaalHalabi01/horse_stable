@@ -19,9 +19,10 @@ pub struct Horse {
     food: u32,
     water: u32,
     current_activity: Activity,
+    stable_id: u32,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Debug)]
 pub struct HorseCreate {
     pub name: String,
     pub breed: String,
@@ -80,6 +81,7 @@ impl TryFrom<libsql::Row> for Horse {
     type Error = libsql::Error;
 
     fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
+
         Ok(Horse {
             id: row.get(0)?,
             name: row.get(1)?,
@@ -95,6 +97,7 @@ impl TryFrom<libsql::Row> for Horse {
             food: row.get(11)?,
             water: row.get(12)?,
             current_activity: row.get::<String>(13)?.into(),
+            stable_id: row.get(14)?,
         })
     }
 }

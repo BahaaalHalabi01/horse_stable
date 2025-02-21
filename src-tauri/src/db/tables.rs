@@ -1,6 +1,6 @@
 use libsql::{Connection, Result};
 
-pub async fn create_horse_table(conn: &Connection)-> Result<u64> {
+pub async fn create_horse_table(conn: &Connection) -> Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Horse (
@@ -14,7 +14,10 @@ pub async fn create_horse_table(conn: &Connection)-> Result<u64> {
     weight INTEGER NOT NULL,
     height INTEGER NOT NULL,
     length INTEGER NOT NULL,
-    cleaness INTEGER NOT NULL,
+    cleaness INTEGER NOT NULL DEFAULT 0,
+    food INTEGER NOT NULL DEFAULT 0,
+    water INTEGER NOT NULL DEFAULT 0,
+    current_activity TEXT NOT NULL,
     stable_id INTEGER NOT NULL,
     FOREIGN KEY(stable_id) REFERENCES Stable(id)
     ON DELETE CASCADE
@@ -25,7 +28,7 @@ pub async fn create_horse_table(conn: &Connection)-> Result<u64> {
     .await
 }
 
-pub async fn create_stable_table(conn: &Connection)-> Result<u64> {
+pub async fn create_stable_table(conn: &Connection) -> Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Stable (
@@ -41,7 +44,7 @@ pub async fn create_stable_table(conn: &Connection)-> Result<u64> {
     .await
 }
 
-pub async fn create_user_table(conn: &Connection)->Result<u64> {
+pub async fn create_user_table(conn: &Connection) -> Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS User (
@@ -56,4 +59,3 @@ pub async fn create_user_table(conn: &Connection)->Result<u64> {
     )
     .await
 }
-

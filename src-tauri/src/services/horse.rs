@@ -6,9 +6,11 @@ pub async fn create_horse(
     horse: HorseCreate,
     conn: &Connection,
 ) -> Result<Option<Horse>> {
+    println!("Creating horse {:?}", horse);
     let uuid = uuid7::uuid7();
     let mut stmt = conn.prepare(r#"
-    INSERT INTO Horse (id, name, breed, color, nationality, gender, weight, age, height, length,stable_id) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10,?11) RETURNING *;
+    INSERT INTO Horse (id, name, breed, color, nationality, gender, weight, age, height, length, current_activity, stable_id )
+    VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12 ) RETURNING *;
     "#).await?;
 
     let mut response = stmt
@@ -23,6 +25,7 @@ pub async fn create_horse(
             horse.age,
             horse.height,
             horse.length,
+            Activity::Idle.to_string(),
             stable_id
         ])
         .await?;
@@ -79,7 +82,7 @@ pub async fn update_horse(horse: Horse, conn: &Connection) -> Result<Option<Hors
     let mut stmt =conn
         .prepare(
             r#"
-    UPDATE OR IGNORE Horse  
+    UPDATE OR IGNORE Horse
     SET name = ?1, breed = ?2, color = ?3, nationality = ?4, age = ?5, gender = ?6, weight = ?7, height = ?8, length = ?9
     WHERE id = ?10
     RETURNING *
@@ -107,7 +110,7 @@ pub async fn water_horse(id: String, water: u32, conn: &Connection) -> Result<Op
     let mut stmt = conn
         .prepare(
             r#"
-    UPDATE OR IGNORE Horse  
+    UPDATE OR IGNORE Horse
     SET water = ?2
     WHERE id = ?1 AND current_activity = ?3
     RETURNING *
@@ -128,7 +131,7 @@ pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<Opti
     let mut stmt = conn
         .prepare(
             r#"
-    UPDATE OR IGNORE Horse   
+    UPDATE OR IGNORE Horse
     SET food = ?2
     WHERE id = ?1 AND current_activity = ?3
     RETURNING *
@@ -147,7 +150,7 @@ pub async fn clean_horse(id: String, cleaness: u32, conn: &Connection) -> Result
     let mut stmt = conn
         .prepare(
             r#"
-    UPDATE OR IGNORE Horse  
+    UPDATE OR IGNORE Horse
     SET cleaness = ?2
     WHERE id = ?1 AND current_activity = ?3
     RETURNING *
@@ -179,6 +182,7 @@ async fn is_horse_idle(id: String, conn: &Connection) -> Result<bool> {
 
 #[cfg(test)]
 mod tests {
+    use horse_stable::HorseCreate;
     use pretty_assertions::{assert_eq, assert_matches};
     use tauri::Manager as _;
 
@@ -189,7 +193,7 @@ mod tests {
             .expect("failed to build app");
 
         app.manage(tokio::sync::Mutex::new(crate::AppStateInner {
-            user_id: "01950fd1-397b-79ee-b2bf-54e4e04e96bf".to_string(),
+            user_id: "01952a69-504c-7c80-a379-2a9845d3059f".to_string(),
         }));
 
         app
@@ -204,18 +208,44 @@ mod tests {
         assert_eq!(horses.unwrap().len(), 0);
     }
 
+    #[test]
+    fn feed_horse() {
+        tauri::async_runtime::block_on(async {
+            let app = create_app(tauri::test::mock_builder());
+
+            let state: crate::AppState = app.state();
+            let conn = crate::db::get_horse_db(app.state()).await.unwrap();
+
+            let horses = super::get_all_horses(&conn).await.unwrap();
+
+            let id = horses.first().unwrap().id().to_string();
+
+            let res = super::feed_horse(id, 10, &conn).await;
+
+            assert_matches!(res, Ok(_));
+        })
+    }
+
     #[tokio::test]
-    async fn feed_horse() {
+    async fn create_horse() {
         let app = create_app(tauri::test::mock_builder());
+        let horse = HorseCreate {
+            name: "Testing".to_string(),
+            breed: "Red".to_string(),
+            color: "Red".to_string(),
+            nationality: "ARabic".to_string(),
+            age: 100,
+            gender: horse_stable::Gender::Male,
+            weight: 100,
+            height: 100,
+            length: 1000,
+        };
 
-        let state: crate::AppState = app.state();
+
         let conn = crate::db::get_horse_db(app.state()).await.unwrap();
+        let x =super::create_horse(1, horse, &conn).await.unwrap();
 
-        let horses = super::get_all_horses(&conn).await.unwrap();
+        assert_matches!(x, Some(_));
 
-        let id = horses.first().unwrap().id().to_string();
-
-        let res = super::feed_horse(id, 10, &conn).await;
-        assert_matches!(res, Ok(_));
     }
 }

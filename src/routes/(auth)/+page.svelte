@@ -2,10 +2,9 @@
     import { Ipc } from '$lib/ipc.svelte'
     import { formatter } from '$src/lib/ipc.defaults'
 
-    void Ipc.get_stables()
-
     let stables = $derived(Ipc.stables)
     const currency = formatter.currency
+
 </script>
 
 <div class="mx-auto container">

@@ -101,15 +101,15 @@ async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool> {
 
 #[tauri::command]
 async fn register_user(state: AppState<'_>, user: User) -> Result<Option<User>> {
-    println!("Registering user {:?}", user);
 
     let conn = get_main_db_conn().await.unwrap();
 
     let email = user.email.clone();
-    if has_user(email, &conn).await {
+    if has_user(email, &conn).await.is_ok() {
         return Err("User already exists".to_string());
     }
 
+    println!("Registering user {:?}", user);
     let res = create_user(user, &conn).await;
 
     if let Ok(Some(ref user)) = res {

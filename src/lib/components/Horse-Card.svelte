@@ -24,13 +24,13 @@
 
     let delete_horse = async function () {
         if (await confirm('Are you sure you want to delete this horse?')) {
-            void Ipc.delete_horse(horse.id)
+            await Ipc.delete_horse(horse.id)
         }
     }
 
     let edit_horse: EventHandler<MouseEvent, HTMLButtonElement> =
         async function () {
-            void Ipc.edit_horse(horse)
+            await Ipc.edit_horse(horse)
         }
 </script>
 

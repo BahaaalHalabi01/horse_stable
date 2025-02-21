@@ -28,7 +28,6 @@ pub async fn get_db_conn(user_id: String) -> Result<Connection> {
     }
     let db_dir = get_db_dir().join(&user_id).with_extension("db");
 
-    println!("creating db_dir: {:?}", db_dir);
     Builder::new_local(db_dir)
         .build()
         .await?

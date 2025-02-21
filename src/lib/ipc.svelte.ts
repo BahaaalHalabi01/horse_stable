@@ -19,7 +19,9 @@ type _State = {
   stables: Stable[];
   result: any;
 };
+
 class GlobalState {
+
   private _state = $state<_State>({
     loading: false,
     horses: [],
@@ -51,6 +53,7 @@ class GlobalState {
   get loading() {
     return this._state.loading;
   }
+
   set loading(value: boolean) {
     this._state.loading = value;
   }
@@ -109,16 +112,37 @@ class GlobalState {
     goto("/");
   }
 
-  async get_current_user() {
+  async get_current_user(callback?: () => Promise<void>) {
     try {
       let { setCurrent } = getUser()
       let res = await invoke<User>(Commands.get_current_user)
+      if (!res) {
+        goto('/login')
+      }
+
+      await callback?.()
       //this is for testing and HMR 
       setCurrent(res)
     } catch (e) {
       alert(e)
     }
   }
+
+  async register_user(user: User, callback?: () => Promise<void>) {
+    try {
+      let { setCurrent } = getUser()
+      let res = await invoke<User>(Commands.register_user, { user })
+      if (!res) {
+        alert("Invalid credentials");
+        return;
+      }
+      setCurrent(res);
+      await callback?.()
+    } catch (e) {
+      alert(e);
+    }
+  }
+
 
   async get_stables() {
     this.loading = true;
@@ -131,5 +155,6 @@ class GlobalState {
   }
 }
 
-
 export const Ipc = new GlobalState();
+
+console.log('Init Ipc State', Ipc)

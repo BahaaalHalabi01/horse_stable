@@ -2,6 +2,10 @@
     import '$src/app.css'
     import { getUser } from './auth.svelte'
 
+    import { Ipc } from '$src/lib/ipc.svelte'
+
+    void Ipc.get_current_user()
+
     let { children } = $props()
     let { user } = getUser()
 </script>
