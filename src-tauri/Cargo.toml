@@ -10,6 +10,10 @@ edition = "2021"
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
+[dev-dependencies]
+pretty_assertions = {version = "1.4.1", features = ["unstable"] }
+tauri-cli = "2.2.7"
+
 [dependencies]
 tauri = { version = "2.1.1", features = ["test"] }
 serde = { version = "1", features = ["derive"] }

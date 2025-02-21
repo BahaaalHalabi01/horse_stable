@@ -104,6 +104,7 @@ pub enum Activity {
     Cleaning,
     Feeding,
     Watering,
+    Idle,
 }
 
 impl fmt::Display for Activity {
@@ -118,7 +119,8 @@ impl From<String> for Activity {
             "Cleaning" => Activity::Cleaning,
             "Feeding" => Activity::Feeding,
             "Watering" => Activity::Watering,
-            _ => Activity::Cleaning,
+            "Idle" => Activity::Idle,
+            _ => panic!("Invalid activity"),
         }
     }
 }
@@ -129,6 +131,7 @@ impl From<Activity> for String {
             Activity::Cleaning => "Cleaning".to_string(),
             Activity::Feeding => "Feeding".to_string(),
             Activity::Watering => "Watering".to_string(),
+            Activity::Idle => "Idle".to_string(),
         }
     }
 }

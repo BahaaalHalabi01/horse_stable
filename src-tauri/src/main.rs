@@ -1,13 +1,13 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use db::{create_user_table, get_horse_db, get_stable_db, init_main_db};
+use db::{get_horse_db, get_main_db_conn, get_stable_db, init_user_table};
 use horse_stable::{Horse, HorseCreate, Stable, StableCreate, User};
 use services::{
     create_horse, create_user, delete_horse, get_all_horses, get_horse_by_id, get_user_by_login,
     has_user, update_horse,
 };
-use tauri::{async_runtime, Manager, State};
+use tauri::{async_runtime, App, Manager, State};
 use tokio::sync::Mutex;
 mod db;
 mod services;
@@ -28,15 +28,14 @@ fn map_err(e: libsql::Error) -> String {
 #[tauri::command]
 async fn get_current_user(state: AppState<'_>) -> Result<Option<User>> {
     let app_state = state.lock().await;
-    let conn = init_main_db().await.unwrap();
 
     let user_id = app_state.user_id.clone();
+    let conn = get_main_db_conn().await.unwrap();
 
     services::get_user_by_id(user_id, &conn)
         .await
         .map_err(map_err)
 }
-
 
 #[tauri::command]
 async fn create_stable(state: AppState<'_>, stable: StableCreate) -> Result<Option<Stable>> {
@@ -46,7 +45,6 @@ async fn create_stable(state: AppState<'_>, stable: StableCreate) -> Result<Opti
         .await
         .map_err(map_err)
 }
-
 
 #[tauri::command]
 async fn list_stables(state: AppState<'_>) -> Result<Vec<Stable>> {
@@ -73,20 +71,22 @@ async fn get_horse(state: AppState<'_>, id: u32) -> Result<Option<Horse>> {
 async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>> {
     let conn = get_horse_db(state).await.unwrap();
 
-     get_all_horses(&conn).await.map_err(map_err)
-
+    get_all_horses(&conn).await.map_err(map_err)
 }
 
 #[tauri::command]
-async fn add_horse(state: AppState<'_>, stable_id:u32 ,horse: HorseCreate) -> Result<Option<Horse>> {
+async fn add_horse(
+    state: AppState<'_>,
+    stable_id: u32,
+    horse: HorseCreate,
+) -> Result<Option<Horse>> {
     let conn = get_horse_db(state).await.map_err(map_err)?;
 
-    create_horse(stable_id,horse, &conn).await.map_err(map_err)
+    create_horse(stable_id, horse, &conn).await.map_err(map_err)
 }
 
 #[tauri::command]
 async fn edit_horse(state: AppState<'_>, horse: Horse) -> Result<Option<Horse>> {
-
     let conn = get_horse_db(state).await.map_err(map_err)?;
 
     update_horse(horse, &conn).await.map_err(map_err)
@@ -102,7 +102,8 @@ async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool> {
 #[tauri::command]
 async fn register_user(state: AppState<'_>, user: User) -> Result<User> {
     println!("Registering user {:?}", user);
-    let conn = init_main_db().await.unwrap();
+
+    let conn = get_main_db_conn().await.unwrap();
 
     let email = user.email.clone();
     if has_user(email, &conn).await {
@@ -117,7 +118,7 @@ async fn register_user(state: AppState<'_>, user: User) -> Result<User> {
 
 #[tauri::command]
 async fn login(state: AppState<'_>, email: String, password: String) -> Result<User> {
-    let conn = init_main_db().await.unwrap();
+    let conn = get_main_db_conn().await.unwrap();
 
     match get_user_by_login(email, password, &conn).await {
         Some(user) => {
@@ -147,20 +148,21 @@ fn main() {
             get_stable,
             get_current_user,
         ])
-        .setup(|app| {
-            println!("Setting up");
-            // this is bad i guess,
-            // i need to just use migrations
-            async_runtime::spawn(async {
-                println!("Starting up db");
-                let conn = init_main_db().await.unwrap();
-                create_user_table(&conn).await;
-            });
-
-            app.manage(Mutex::new(AppStateInner::default()));
-
-            Ok(())
-        })
+        .setup(|app| async_runtime::block_on(setup(app)))
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
+}
+
+async fn setup(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
+    println!("Setting up");
+    // this is bad i guess,
+    // i need to just use migrations
+
+    app.manage(Mutex::new(AppStateInner::default()));
+
+    let conn = get_main_db_conn().await?;
+    println!("Setting up db");
+    init_user_table(&conn).await?;
+
+    Ok(())
 }

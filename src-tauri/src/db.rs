@@ -1,68 +1,79 @@
-use std::fs::create_dir_all;
-use libsql::{Builder, Connection, Error};
+use libsql::{Builder, Connection, Result};
+use std::{fs::create_dir_all, path::PathBuf};
 mod tables;
 
 pub use tables::*;
 
 use crate::AppState;
 
-pub async fn init_main_db() -> Result<Connection, Error> {
-    let db = if let Ok(url) = std::env::var("LIBSQL_URL") {
+pub async fn get_main_db_conn() -> Result<Connection> {
+    let db_dir = get_db_dir();
+
+    (if let Ok(url) = std::env::var("LIBSQL_URL") {
         let token = std::env::var("LIBSQL_AUTH_TOKEN").unwrap_or_else(|_| {
             println!("LIBSQL_TOKEN not set, using empty token...");
             "".to_string()
         });
-
-        Builder::new_remote(url, token).build().await.unwrap()
+        Builder::new_remote(url, token).build().await
     } else {
-        create_dir_all("../dbs").expect("could not create dbs folder");
-        Builder::new_local("../dbs/main.db").build().await.expect("could not create db")
-    };
-
-    let conn = db.connect()?;
-
-    create_user_table(&conn).await;
-    Ok(conn)
+        Builder::new_local(db_dir.join("main.db")).build().await
+    })?
+    .connect()
 }
 
-pub async fn get_horse_db(app_state: AppState<'_>) -> Result<Connection, Error> {
-    let app_state = app_state.lock().await;
+pub async fn init_user_table(conn: &Connection) -> Result<u64> {
+    create_user_table(conn).await
+}
 
-    let user_id = app_state.user_id.clone();
+pub async fn get_db_conn(user_id: String) -> Result<Connection> {
+    if user_id.is_empty() {
+        panic!("User id is empty,how did you get here?");
+    }
+    let db_dir = get_db_dir().join(&user_id).with_extension("db");
 
-
-        create_dir_all("../dbs").expect("could not create dbs folder");
-    let db = Builder::new_local(format!("../dbs/{}.db", user_id))
+    println!("creating db_dir: {:?}", db_dir);
+    Builder::new_local(db_dir.join(&user_id).with_extension("db"))
         .build()
-        .await
-        .expect(&format!("could not create db for {}", user_id));
+        .await?
+        .connect()
+}
 
-    let conn = db.connect()?;
+pub async fn get_horse_db(app_state: AppState<'_>) -> Result<Connection> {
+    let user_id = app_state.lock().await.user_id.clone();
+
+    let conn = get_db_conn(user_id).await?;
 
     // this is bad i guess,
     // i need to just use migrations
-    create_horse_table(&conn).await;
+    create_horse_table(&conn).await?;
 
     Ok(conn)
 }
 
-pub async fn get_stable_db(app_state: AppState<'_>) -> Result<Connection, Error> {
-    let app_state = app_state.lock().await;
-
-    let user_id = app_state.user_id.clone();
-
-
-        create_dir_all("../dbs").expect("could not create dbs folder");
-    let db = Builder::new_local(format!("../dbs/{}.db", user_id))
-        .build()
-        .await
-        .unwrap_or_else(|_| panic!("could not create db for {}", user_id));
-
-    let conn = db.connect()?;
+pub async fn get_stable_db(app_state: AppState<'_>) -> Result<Connection> {
+    let user_id = app_state.lock().await.user_id.clone();
+    let conn = get_db_conn(user_id).await?;
 
     // this is bad i guess,
     // i need to just use migrations
     create_stable_table(&conn).await?;
 
     Ok(conn)
+}
+
+fn get_db_dir() -> PathBuf {
+    //just hard coded for now
+    let db_dir = PathBuf::from("/home/bh2/Desktop/Rust/horse-stable/dbs/");
+
+    create_dir_all(&db_dir).expect("could not create dbs folder");
+
+    db_dir
+
+    // match std::env::current_dir() {
+    //     Ok(mut cwd) => {
+    //         cwd.pop();
+    //         cwd.join("dbs")
+    //     }
+    //     Err(_) => PathBuf::from("../dbs"),
+    // }
 }

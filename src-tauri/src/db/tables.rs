@@ -1,6 +1,6 @@
 use libsql::{Connection, Result};
 
-pub async fn create_horse_table(conn: &Connection) {
+pub async fn create_horse_table(conn: &Connection)-> Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS Horse (
@@ -23,7 +23,6 @@ pub async fn create_horse_table(conn: &Connection) {
         (),
     )
     .await
-    .unwrap();
 }
 
 pub async fn create_stable_table(conn: &Connection)-> Result<u64> {
@@ -42,7 +41,7 @@ pub async fn create_stable_table(conn: &Connection)-> Result<u64> {
     .await
 }
 
-pub async fn create_user_table(conn: &Connection) {
+pub async fn create_user_table(conn: &Connection)->Result<u64> {
     conn.execute(
         r#"
     CREATE TABLE IF NOT EXISTS User (
@@ -56,6 +55,5 @@ pub async fn create_user_table(conn: &Connection) {
         (),
     )
     .await
-    .unwrap();
 }
 

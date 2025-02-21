@@ -11,6 +11,10 @@
   async function login() {
     try {
       let res = await invoke<User>("login", { email, password });
+      if (!res) {
+        alert("Invalid credentials");
+        return;
+      }
       setCurrent(res);
       void goto("/");
     } catch (e) {
