@@ -6,6 +6,7 @@ pub async fn create_horse(
     horse: HorseCreate,
     conn: &Connection,
 ) -> Result<Option<Horse>> {
+
     println!("Creating horse {:?}", horse);
     let uuid = uuid7::uuid7();
     let mut stmt = conn.prepare(r#"
@@ -125,25 +126,23 @@ pub async fn water_horse(id: String, water: u32, conn: &Connection) -> Result<Op
     res.next().await?.map(Horse::try_from).transpose()
 }
 
-pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<Option<Horse>> {
+pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<u64> {
     println!("Tring to feed horse {} for {}", id, food);
 
-    let mut stmt = conn
-        .prepare(
-            r#"
+    conn.execute(
+        r#"
     UPDATE OR IGNORE Horse
-    SET food = ?2
-    WHERE id = ?1 AND current_activity = ?3
-    RETURNING *
+    SET food = food + ?2 , current_activity = ?3
+    WHERE id = ?1 AND current_activity = ?4
     "#,
-        )
-        .await?;
-
-    let mut res = stmt
-        .query(params![id, food, Activity::Idle.to_string()])
-        .await?;
-
-    res.next().await?.map(Horse::try_from).transpose()
+        params![
+            id,
+            food,
+            Activity::Feeding.to_string(),
+            Activity::Idle.to_string()
+        ],
+    )
+    .await
 }
 
 pub async fn clean_horse(id: String, cleaness: u32, conn: &Connection) -> Result<Option<Horse>> {
@@ -213,16 +212,14 @@ mod tests {
         tauri::async_runtime::block_on(async {
             let app = create_app(tauri::test::mock_builder());
 
-            let state: crate::AppState = app.state();
             let conn = crate::db::get_horse_db(app.state()).await.unwrap();
 
             let horses = super::get_all_horses(&conn).await.unwrap();
 
-            let id = horses.first().unwrap().id().to_string();
+            let horse = horses.first().unwrap();
+            let res = super::feed_horse(horse.id().to_string(), 10, &conn).await;
 
-            let res = super::feed_horse(id, 10, &conn).await;
-
-            assert_matches!(res, Ok(_));
+            assert_matches!(res, Ok(1));
         })
     }
 
@@ -241,11 +238,9 @@ mod tests {
             length: 1000,
         };
 
-
         let conn = crate::db::get_horse_db(app.state()).await.unwrap();
-        let x =super::create_horse(1, horse, &conn).await.unwrap();
+        let x = super::create_horse(1, horse, &conn).await.unwrap();
 
         assert_matches!(x, Some(_));
-
     }
 }

@@ -74,6 +74,13 @@ async fn list_all_horses(state: AppState<'_>) -> Result<Vec<Horse>> {
     get_all_horses(&conn).await.map_err(map_err)
 }
 
+#[tauri::command(async)]
+async fn feed_horse(id: String, state: AppState<'_>) -> Result<u64> {
+    let conn = get_horse_db(state).await.unwrap();
+
+    services::feed_horse(id, 40, &conn).await.map_err(map_err)
+}
+
 #[tauri::command]
 async fn add_horse(
     state: AppState<'_>,
@@ -101,7 +108,6 @@ async fn remove_horse(state: AppState<'_>, id: String) -> Result<bool> {
 
 #[tauri::command]
 async fn register_user(state: AppState<'_>, user: User) -> Result<Option<User>> {
-
     let conn = get_main_db_conn().await.unwrap();
 
     let email = user.email.clone();
@@ -149,6 +155,7 @@ fn main() {
             list_stables,
             get_stable,
             get_current_user,
+            feed_horse
         ])
         .setup(|app| async_runtime::block_on(setup(app)))
         .run(tauri::generate_context!())

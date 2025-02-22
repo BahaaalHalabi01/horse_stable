@@ -105,6 +105,10 @@ class GlobalState {
     this.loading = true;
     try {
       this._state.result = await invoke<boolean>(Commands.create_stable, { stable });
+      if (this._state.result) {
+        this.get_stables()
+      }
+
     } catch (e) {
       alert(e);
     }
@@ -112,7 +116,7 @@ class GlobalState {
     goto("/");
   }
 
-  async get_current_user(callback?: () => Promise<void>) {
+  async get_current_user() {
     try {
       let { setCurrent } = getUser()
       let res = await invoke<User>(Commands.get_current_user)
@@ -120,12 +124,13 @@ class GlobalState {
         goto('/login')
       }
 
-      await callback?.()
       //this is for testing and HMR 
       setCurrent(res)
+      return res
     } catch (e) {
       alert(e)
     }
+    return null
   }
 
   async register_user(user: User, callback?: () => Promise<void>) {
@@ -143,10 +148,28 @@ class GlobalState {
     }
   }
 
+  async feed_horse(id: string) {
+    this.loading = true;
+    try {
+      const res = await invoke<Horse>(Commands.feed_horse, { id })
+      console.log('res', res)
+      if (res) {
+        await this.get_horses()
+      }
+
+    } catch (e) {
+      alert(e)
+    }
+    this.loading = false;
+  }
+
 
   async get_stables() {
     this.loading = true;
     try {
+      let { user } = getUser()
+      if (!user) return
+
       this._state.stables = await invoke<Stable[]>(Commands.list_stables)
     } catch (e) {
       alert(e)

@@ -14,9 +14,9 @@ pub async fn create_horse_table(conn: &Connection) -> Result<u64> {
     weight INTEGER NOT NULL,
     height INTEGER NOT NULL,
     length INTEGER NOT NULL,
-    cleaness INTEGER NOT NULL DEFAULT 0,
-    food INTEGER NOT NULL DEFAULT 0,
-    water INTEGER NOT NULL DEFAULT 0,
+    cleaness INTEGER NOT NULL DEFAULT 100,
+    food INTEGER NOT NULL DEFAULT 100,
+    water INTEGER NOT NULL DEFAULT 100,
     current_activity TEXT NOT NULL,
     stable_id INTEGER NOT NULL,
     FOREIGN KEY(stable_id) REFERENCES Stable(id)

@@ -10,6 +10,10 @@ export interface Horse {
   height: number;
   length: number;
   cleaness: number;
+  food: number;
+  water: number;
+  current_activity: "Cleaning" | "Feeding" | "Watering" | "Idle";
+  stable_id: number;
 }
 
 export type HorseCreate  = Pick<Horse, "name" | "breed" | "color" | "nationality" | "age" | "gender" | "weight" | "height" | "length">;
