@@ -1,5 +1,6 @@
 export enum Commands {
   feed_horse = "feed_horse",
+  clean_horse = "clean_horse",
   get_current_user = "get_current_user",
   list_stables = "list_stables",
   list_all_horses = "list_all_horses",

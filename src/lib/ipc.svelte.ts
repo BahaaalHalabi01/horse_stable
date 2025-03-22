@@ -152,26 +152,49 @@ class GlobalState {
   }
 
   async feed_horse(id: string) {
+    console.debug("feeding horse with id", id)
     this.loading = true;
     try {
       const res = await invoke<Horse>(Commands.feed_horse, { id })
       console.log('res', res)
-      if (res) {
-        await this.get_horses()
+      if (!res) {
+        alert("Failed to feed horse")
+        return
       }
+
+      await this.get_horses()
+
+    } catch (e) {
+      alert(e)
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  async clean_horse(id: string) {
+    console.debug("cleaning horse with id", id)
+    this.loading = true;
+    try {
+      const res = await invoke<number>(Commands.feed_horse, { id })
+      if (!res) {
+        alert("Failed to clean horse")
+        return
+      }
+
+      await this.get_horses()
 
     } catch (e) {
       alert(e)
     }
-    this.loading = false;
+    finally {
+      this.loading = false;
+    }
   }
 
 
   async get_stables() {
     console.debug("get_stables")
     this.loading = true;
-    const { _user } = getUser()
-    console.debug("get_stables", _user)
     try {
       this._state.stables = await invoke<Stable[]>(Commands.list_stables)
     } catch (e) {

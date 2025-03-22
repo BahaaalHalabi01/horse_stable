@@ -82,6 +82,13 @@ async fn feed_horse(id: String, state: AppState<'_>) -> Result<u64> {
     services::feed_horse(id, 40, &conn).await.map_err(map_err)
 }
 
+#[tauri::command(async)]
+async fn clean_horse(id: String, state: AppState<'_>) -> Result<u64> {
+    let conn = get_horse_db(state).await.unwrap();
+
+    services::clean_horse(id, 40, &conn).await.map_err(map_err)
+}
+
 #[tauri::command]
 async fn add_horse(
     state: AppState<'_>,
@@ -156,7 +163,8 @@ fn main() {
             list_stables,
             get_stable,
             get_current_user,
-            feed_horse
+            feed_horse,
+            clean_horse
         ])
         .setup(|app| async_runtime::block_on(setup(app)))
         .run(tauri::generate_context!())

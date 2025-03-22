@@ -53,3 +53,5 @@ Create the dbs in a destination folder able to be specified by the installer
 - [] Add stronghold for strong session when logging in
 - [] Generate test data 
 - [] Can i link my try_from to the table creation code ? i do not want to use an orm, diy
+- [] Try typesense for search ( or just use meilisearch )
+- [] do i need tanstack query ?

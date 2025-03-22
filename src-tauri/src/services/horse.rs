@@ -6,7 +6,6 @@ pub async fn create_horse(
     horse: HorseCreate,
     conn: &Connection,
 ) -> Result<Option<Horse>> {
-
     println!("Creating horse {:?}", horse);
     let uuid = uuid7::uuid7();
     let mut stmt = conn.prepare(r#"
@@ -145,23 +144,24 @@ pub async fn feed_horse(id: String, food: u32, conn: &Connection) -> Result<u64>
     .await
 }
 
-pub async fn clean_horse(id: String, cleaness: u32, conn: &Connection) -> Result<Option<Horse>> {
-    let mut stmt = conn
-        .prepare(
-            r#"
+pub async fn clean_horse(id: String, cleaness: u32, conn: &Connection) -> Result<u64> {
+    println!("Cleaning horse with id {} for {}", id, cleaness);
+
+    conn.execute(
+        r#"
     UPDATE OR IGNORE Horse
-    SET cleaness = ?2
-    WHERE id = ?1 AND current_activity = ?3
+    SET cleaness = cleaness + ?2,current_activity = ?3
+    WHERE id = ?1 AND current_activity = ?4
     RETURNING *
     "#,
-        )
-        .await?;
-
-    let mut res = stmt
-        .query(params![id, cleaness, Activity::Idle.to_string()])
-        .await?;
-
-    res.next().await?.map(Horse::try_from).transpose()
+        params![
+            id,
+            cleaness,
+            Activity::Watering.to_string(),
+            Activity::Idle.to_string()
+        ],
+    )
+    .await
 }
 
 async fn is_horse_idle(id: String, conn: &Connection) -> Result<bool> {

@@ -12,8 +12,11 @@
         throw new Error('Horse not found')
     }
 
-    async function feedhorse() {
-        await Ipc.feed_horse(horse_id)
+     function feedhorse() {
+         Ipc.feed_horse(horse_id).then(console.log)
+    }
+     function cleanhorse() {
+         Ipc.clean_horse(horse_id).then(console.log)
     }
 </script>
 
@@ -28,7 +31,7 @@
         </figure>
     </div>
     <div>
-        <button class="btn btn-primary"> Clean the Horse </button>
+        <button class="btn btn-primary" onclick={cleanhorse}> Clean the Horse </button>
         <button class="btn btn-primary" onclick={feedhorse}>
             Feed the Horse
         </button>
