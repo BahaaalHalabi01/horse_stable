@@ -1,80 +1,12 @@
 use serde::{Deserialize, Serialize};
+use fake::Dummy;
 use std::{fmt, time::SystemTime};
 
 mod models;
 
 pub use models::*;
 
-//same order stored in the db
-#[derive(Debug, Serialize, Deserialize)]
-pub struct Stable {
-    id: u32,
-    name: String,
-    address: String,
-    monthly_fee: u32,
-    created_at: u64,
-    updated_at: u64,
-}
-
-#[derive(Deserialize)]
-pub struct StableCreate {
-    pub name: String,
-    pub address: String,
-    pub monthly_fee: u32,
-}
-
-impl Stable {
-    pub fn new(id: u32, name: String, address: String, monthly_fee: u32) -> Self {
-        let now = SystemTime::now()
-            .duration_since(SystemTime::UNIX_EPOCH)
-            .unwrap()
-            .as_secs();
-        Stable {
-            id,
-            name,
-            address,
-            monthly_fee,
-            created_at: now,
-            updated_at: now,
-        }
-    }
-
-    pub fn id(&self) -> u32 {
-        self.id
-    }
-    pub fn name(&self) -> String {
-        self.name.clone()
-    }
-    pub fn address(&self) -> String {
-        self.address.clone()
-    }
-    pub fn monthly_fee(&self) -> u32 {
-        self.monthly_fee
-    }
-    pub fn created_at(&self) -> u64 {
-        self.created_at
-    }
-    pub fn updated_at(&self) -> u64 {
-        self.updated_at
-    }
-}
-
-impl TryFrom<libsql::Row> for Stable {
-    type Error = libsql::Error;
-
-    fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
-        Ok(Stable {
-            id: row.get(0)?,
-            name: row.get(1)?,
-            address: row.get(2)?,
-            monthly_fee: row.get(3)?,
-            created_at: row.get(4)?,
-            updated_at: row.get(5)?,
-        })
-    }
-}
-
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone,Dummy)]
 pub enum Gender {
     Male,
     Female,
@@ -159,8 +91,8 @@ impl TryFrom<libsql::Row> for User {
         Ok(User {
             id: row.get(0)?,
             username: row.get(1)?,
-            email: row.get(2)?,
-            password: row.get(3)?,
+            password: row.get(2)?,
+            email: row.get(3)?,
             created_at: row.get(4)?,
             updated_at: row.get(5)?,
         })

@@ -1,11 +1,21 @@
 <script lang="ts">
+    import { goto } from '$app/navigation'
     import { Ipc } from '$src/lib/ipc.svelte'
+    import { getUser } from '../auth.svelte'
 
     let { children } = $props()
+    const { user } = getUser()
 
-    $effect.pre(() => {
-             Ipc.get_stables()
+    $effect(() => {
+        if (!$user) {
+            goto('/login')
+            return
+        }
+
+        Ipc.get_stables()
     })
+
+    localStorage.setItem('user', JSON.stringify(user))
 
     let loading = $derived(Ipc.loading)
 </script>

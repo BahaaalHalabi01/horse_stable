@@ -1,3 +1,7 @@
+use fake::{Dummy, Fake, Faker};
+use fake::faker::name::en::*;
+use fake::faker::address::en::*;
+use fake::faker::color::en::*;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
@@ -22,16 +26,24 @@ pub struct Horse {
     stable_id: u32,
 }
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, Dummy)]
 pub struct HorseCreate {
+    #[dummy(faker = "Name()")]
     pub name: String,
+    #[dummy(faker = "CountryName()")]
     pub breed: String,
+    #[dummy(faker = "HexColor()")]
     pub color: String,
+    #[dummy(faker = "CountryName()")]
     pub nationality: String,
+    #[dummy(faker = "2..25")]
     pub age: u32,
     pub gender: Gender,
+    #[dummy(faker = "1..100")]
     pub weight: u32,
+    #[dummy(faker = "1..100")]
     pub height: u32,
+    #[dummy(faker = "1..100")]
     pub length: u32,
 }
 
@@ -81,7 +93,6 @@ impl TryFrom<libsql::Row> for Horse {
     type Error = libsql::Error;
 
     fn try_from(row: libsql::Row) -> Result<Self, Self::Error> {
-
         Ok(Horse {
             id: row.get(0)?,
             name: row.get(1)?,
@@ -102,7 +113,7 @@ impl TryFrom<libsql::Row> for Horse {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Serialize, Deserialize, Clone,Dummy)]
 pub enum Activity {
     Cleaning,
     Feeding,

@@ -10,6 +10,7 @@ use services::{
 use tauri::{async_runtime, App, Manager, State};
 use tokio::sync::Mutex;
 mod db;
+mod scripts;
 mod services;
 
 type Result<T> = std::result::Result<T, String>;
@@ -111,7 +112,7 @@ async fn register_user(state: AppState<'_>, user: User) -> Result<Option<User>> 
     let conn = get_main_db_conn().await.unwrap();
 
     let email = user.email.clone();
-    if has_user(email, &conn).await.is_ok() {
+    if has_user(email, &conn).await.unwrap_or(false) {
         return Err("User already exists".to_string());
     }
 
@@ -164,6 +165,7 @@ fn main() {
 
 async fn setup(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Error>> {
     println!("Setting up");
+
     // this is bad i guess,
     // i need to just use migrations
 
@@ -172,6 +174,9 @@ async fn setup(app: &mut App) -> std::result::Result<(), Box<dyn std::error::Err
     let conn = get_main_db_conn().await?;
     println!("Setting up db");
     init_user_table(&conn).await?;
+
+    //testing
+    // scripts::init(&conn).await;
 
     Ok(())
 }

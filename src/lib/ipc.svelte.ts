@@ -59,6 +59,7 @@ class GlobalState {
   }
 
   async get_horses() {
+    console.debug("get_horses")
     this.loading = true;
     try {
       this.horses = await invoke<Horse[]>(Commands.list_all_horses)
@@ -102,6 +103,7 @@ class GlobalState {
     }
   }
   async add_stable(stable: StableCreate) {
+    console.debug("add_stable")
     this.loading = true;
     try {
       this._state.result = await invoke<boolean>(Commands.create_stable, { stable });
@@ -117,6 +119,7 @@ class GlobalState {
   }
 
   async get_current_user() {
+    console.debug("get_current_user")
     try {
       let { setCurrent } = getUser()
       let res = await invoke<User>(Commands.get_current_user)
@@ -165,11 +168,11 @@ class GlobalState {
 
 
   async get_stables() {
+    console.debug("get_stables")
     this.loading = true;
+    const { _user } = getUser()
+    console.debug("get_stables", _user)
     try {
-      let { user } = getUser()
-      if (!user) return
-
       this._state.stables = await invoke<Stable[]>(Commands.list_stables)
     } catch (e) {
       alert(e)

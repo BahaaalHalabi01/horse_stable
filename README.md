@@ -46,3 +46,10 @@ Create the dbs in a destination folder able to be specified by the installer
 - Employee info
 - Be ably to assign a horse to an employee
 - Allow owners to access the data and see what their horse is doing.
+
+
+## TODOS
+- [] Hash passwords i know but i do not care for now, maybe use other auth way than password
+- [] Add stronghold for strong session when logging in
+- [] Generate test data 
+- [] Can i link my try_from to the table creation code ? i do not want to use an orm, diy
